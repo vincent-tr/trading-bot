@@ -2,9 +2,9 @@ package runner
 
 import (
 	"fmt"
-	"go-experiments/brokers/backtesting"
-	"go-experiments/common"
 	"sync"
+	"trading-bot/brokers/backtesting"
+	"trading-bot/common"
 )
 
 type datasets struct {

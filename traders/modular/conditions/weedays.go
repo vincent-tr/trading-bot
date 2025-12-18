@@ -3,10 +3,10 @@ package conditions
 import (
 	"encoding/json"
 	"fmt"
-	"go-experiments/traders/modular/context"
-	"go-experiments/traders/modular/formatter"
 	"strings"
 	"time"
+	"trading-bot/traders/modular/context"
+	"trading-bot/traders/modular/formatter"
 )
 
 func Weekday(weekdays ...time.Weekday) Condition {

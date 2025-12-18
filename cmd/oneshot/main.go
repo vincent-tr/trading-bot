@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"go-experiments/brokers/backtesting"
-	"go-experiments/common"
-	"go-experiments/strategies"
-	"go-experiments/traders"
-	"go-experiments/traders/modular"
-	"go-experiments/traders/modular/indicators"
-	"go-experiments/traders/modular/ordercomputer"
 	"time"
+	"trading-bot/brokers/backtesting"
+	"trading-bot/common"
+	"trading-bot/strategies"
+	"trading-bot/traders"
+	"trading-bot/traders/modular"
+	"trading-bot/traders/modular/indicators"
+	"trading-bot/traders/modular/ordercomputer"
 )
 
 func main() {

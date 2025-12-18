@@ -2,11 +2,11 @@ package gpt
 
 import (
 	"fmt"
-	"go-experiments/brokers"
-	"go-experiments/common"
-	"go-experiments/traders/tools"
 	"math"
 	"time"
+	"trading-bot/brokers"
+	"trading-bot/common"
+	"trading-bot/traders/tools"
 
 	"github.com/markcheno/go-talib"
 )

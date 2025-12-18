@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"go-experiments/brokers/backtesting"
-	"go-experiments/common"
 	"image/color"
 	"log"
 	"os"
 	"time"
+	"trading-bot/brokers/backtesting"
+	"trading-bot/common"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -23,6 +23,7 @@ type bucket struct {
 
 func main() {
 	dataset, err := backtesting.LoadDataset(
+		backtesting.Dukascopy,
 		common.NewMonth(2024, 1),
 		common.NewMonth(2024, 1),
 		"EURUSD",

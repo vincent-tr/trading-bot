@@ -1,12 +1,12 @@
 package strategies
 
 import (
-	"go-experiments/common"
-	"go-experiments/gridsearch"
-	"go-experiments/traders/modular"
-	"go-experiments/traders/modular/conditions"
-	"go-experiments/traders/modular/indicators"
 	"time"
+	"trading-bot/common"
+	"trading-bot/gridsearch"
+	"trading-bot/traders/modular"
+	"trading-bot/traders/modular/conditions"
+	"trading-bot/traders/modular/indicators"
 )
 
 func Breakout(strategy modular.StrategyBuilder) {

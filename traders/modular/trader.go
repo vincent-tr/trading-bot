@@ -2,16 +2,16 @@ package modular
 
 import (
 	"fmt"
-	"go-experiments/brokers"
-	"go-experiments/common"
-	"go-experiments/traders/modular/conditions"
-	"go-experiments/traders/modular/context"
-	"go-experiments/traders/modular/indicators"
-	"go-experiments/traders/modular/ordercomputer"
-	"go-experiments/traders/tools"
 	"maps"
 	"slices"
 	"time"
+	"trading-bot/brokers"
+	"trading-bot/common"
+	"trading-bot/traders/modular/conditions"
+	"trading-bot/traders/modular/context"
+	"trading-bot/traders/modular/indicators"
+	"trading-bot/traders/modular/ordercomputer"
+	"trading-bot/traders/tools"
 )
 
 var log = common.NewLogger("traders/modular")

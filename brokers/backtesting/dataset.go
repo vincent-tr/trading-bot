@@ -2,10 +2,10 @@ package backtesting
 
 import (
 	"fmt"
-	"go-experiments/common"
 	"path"
 	"runtime"
 	"time"
+	"trading-bot/common"
 
 	"github.com/xitongsys/parquet-go-source/local"
 	"github.com/xitongsys/parquet-go/reader"
@@ -51,7 +51,14 @@ func (d *Dataset) Ticks() func(yield func(Tick) bool) {
 	}
 }
 
-func LoadDataset(begin, end common.Month, symbol string) (*Dataset, error) {
+type DataSource string
+
+const (
+	HistData  DataSource = "histdata"
+	Dukascopy DataSource = "dukascopy"
+)
+
+func LoadDataset(dataSource DataSource, begin, end common.Month, symbol string) (*Dataset, error) {
 	beginTime := time.Now()
 
 	files := make([]*file, 0) // Preallocate for 12 months
@@ -59,7 +66,7 @@ func LoadDataset(begin, end common.Month, symbol string) (*Dataset, error) {
 	endDate := end.LastDay()
 
 	for d := beginDate; d.Before(endDate); d = d.AddDate(0, 1, 0) {
-		f, err := openFile(d.Year(), int(d.Month()), symbol)
+		f, err := openFile(dataSource, d.Year(), int(d.Month()), symbol)
 		if err != nil {
 			return nil, err
 		}
@@ -161,8 +168,8 @@ type file struct {
 	reader *reader.ParquetReader
 }
 
-func openFile(year int, month int, symbol string) (*file, error) {
-	parquetFile := path.Join(dataPath, fmt.Sprintf("%s_%04d%02d.parquet", symbol, year, month))
+func openFile(dataSource DataSource, year int, month int, symbol string) (*file, error) {
+	parquetFile := path.Join(dataPath, string(dataSource), fmt.Sprintf("%s_%04d%02d.parquet", symbol, year, month))
 
 	// Open Parquet file
 	pFile, err := local.NewLocalFileReader(parquetFile)

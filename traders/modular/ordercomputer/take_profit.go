@@ -3,9 +3,9 @@ package ordercomputer
 import (
 	"encoding/json"
 	"fmt"
-	"go-experiments/brokers"
-	"go-experiments/traders/modular/context"
-	"go-experiments/traders/modular/formatter"
+	"trading-bot/brokers"
+	"trading-bot/traders/modular/context"
+	"trading-bot/traders/modular/formatter"
 )
 
 func TakeProfitRatio(ratio float64) OrderComputer {

@@ -3,8 +3,8 @@ package indicators
 import (
 	"encoding/json"
 	"fmt"
-	"go-experiments/traders/modular/context"
-	"go-experiments/traders/modular/formatter"
+	"trading-bot/traders/modular/context"
+	"trading-bot/traders/modular/formatter"
 )
 
 func Const(period int, value float64) Indicator {

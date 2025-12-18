@@ -1,8 +1,8 @@
 package backtesting
 
 import (
-	"go-experiments/brokers"
 	"time"
+	"trading-bot/brokers"
 )
 
 type position struct {

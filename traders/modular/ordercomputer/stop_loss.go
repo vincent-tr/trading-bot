@@ -3,11 +3,11 @@ package ordercomputer
 import (
 	"encoding/json"
 	"fmt"
-	"go-experiments/brokers"
-	"go-experiments/traders/modular/context"
-	"go-experiments/traders/modular/formatter"
-	"go-experiments/traders/modular/indicators"
-	"go-experiments/traders/modular/marshal"
+	"trading-bot/brokers"
+	"trading-bot/traders/modular/context"
+	"trading-bot/traders/modular/formatter"
+	"trading-bot/traders/modular/indicators"
+	"trading-bot/traders/modular/marshal"
 )
 
 func StopLossATR(atr indicators.Indicator, multiplier float64) OrderComputer {

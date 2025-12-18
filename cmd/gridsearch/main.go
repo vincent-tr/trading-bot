@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"go-experiments/common"
-	"go-experiments/gridsearch"
-	"go-experiments/runner"
-	"go-experiments/strategies"
-	"go-experiments/traders/modular"
-	"go-experiments/traders/modular/indicators"
-	"go-experiments/traders/modular/ordercomputer"
+	"trading-bot/common"
+	"trading-bot/gridsearch"
+	"trading-bot/runner"
+	"trading-bot/strategies"
+	"trading-bot/traders/modular"
+	"trading-bot/traders/modular/indicators"
+	"trading-bot/traders/modular/ordercomputer"
 )
 
 func main() {

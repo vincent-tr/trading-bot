@@ -2,9 +2,9 @@ package modular
 
 import (
 	"fmt"
-	"go-experiments/traders/modular/conditions"
-	"go-experiments/traders/modular/formatter"
-	"go-experiments/traders/modular/ordercomputer"
+	"trading-bot/traders/modular/conditions"
+	"trading-bot/traders/modular/formatter"
+	"trading-bot/traders/modular/ordercomputer"
 )
 
 type Builder interface {

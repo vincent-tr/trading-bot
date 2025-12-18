@@ -3,10 +3,10 @@ package conditions
 import (
 	"encoding/json"
 	"fmt"
-	"go-experiments/traders/modular/context"
-	"go-experiments/traders/modular/formatter"
-	"go-experiments/traders/modular/indicators"
-	"go-experiments/traders/modular/marshal"
+	"trading-bot/traders/modular/context"
+	"trading-bot/traders/modular/formatter"
+	"trading-bot/traders/modular/indicators"
+	"trading-bot/traders/modular/marshal"
 )
 
 func IndicatorRange(indicator indicators.Indicator, min, max float64) Condition {

@@ -2,9 +2,9 @@ package conditions
 
 import (
 	"encoding/json"
-	"go-experiments/traders/modular/context"
-	"go-experiments/traders/modular/formatter"
-	"go-experiments/traders/modular/marshal"
+	"trading-bot/traders/modular/context"
+	"trading-bot/traders/modular/formatter"
+	"trading-bot/traders/modular/marshal"
 )
 
 func And(conditions ...Condition) Condition {

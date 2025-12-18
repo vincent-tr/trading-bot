@@ -1,7 +1,7 @@
 package tools
 
 import (
-	"go-experiments/brokers"
+	"trading-bot/brokers"
 )
 
 type History struct {

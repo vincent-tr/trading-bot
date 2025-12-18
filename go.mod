@@ -1,4 +1,4 @@
-module traging-bot
+module trading-bot
 
 go 1.23.2
 

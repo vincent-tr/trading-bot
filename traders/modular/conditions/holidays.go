@@ -2,9 +2,9 @@ package conditions
 
 import (
 	"encoding/json"
-	"go-experiments/common"
-	"go-experiments/traders/modular/context"
-	"go-experiments/traders/modular/formatter"
+	"trading-bot/common"
+	"trading-bot/traders/modular/context"
+	"trading-bot/traders/modular/formatter"
 )
 
 func ExcludeUKHolidays() Condition {

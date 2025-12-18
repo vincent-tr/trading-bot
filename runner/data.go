@@ -4,8 +4,8 @@ import (
 	"crypto/md5"
 	"database/sql"
 	"fmt"
-	"go-experiments/brokers/backtesting"
 	"time"
+	"trading-bot/brokers/backtesting"
 
 	_ "github.com/mattn/go-sqlite3"
 )

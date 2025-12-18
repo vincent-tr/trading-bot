@@ -1,9 +1,9 @@
 package context
 
 import (
-	"go-experiments/brokers"
-	"go-experiments/traders/tools"
 	"time"
+	"trading-bot/brokers"
+	"trading-bot/traders/tools"
 )
 
 type TraderContext interface {

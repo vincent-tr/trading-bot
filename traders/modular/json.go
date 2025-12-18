@@ -3,9 +3,9 @@ package modular
 import (
 	"encoding/json"
 	"fmt"
-	"go-experiments/traders/modular/conditions"
-	"go-experiments/traders/modular/marshal"
-	"go-experiments/traders/modular/ordercomputer"
+	"trading-bot/traders/modular/conditions"
+	"trading-bot/traders/modular/marshal"
+	"trading-bot/traders/modular/ordercomputer"
 )
 
 type builderJSON struct {

@@ -1,10 +1,10 @@
 package traders
 
 import (
-	"go-experiments/brokers"
-	"go-experiments/traders/basic"
-	"go-experiments/traders/gpt"
-	"go-experiments/traders/modular"
+	"trading-bot/brokers"
+	"trading-bot/traders/basic"
+	"trading-bot/traders/gpt"
+	"trading-bot/traders/modular"
 )
 
 type GptConfig = gpt.Config

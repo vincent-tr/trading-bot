@@ -2,11 +2,11 @@ package backtesting
 
 import (
 	"fmt"
-	"go-experiments/brokers"
-	"go-experiments/common"
 	"math"
 	"slices"
 	"time"
+	"trading-bot/brokers"
+	"trading-bot/common"
 )
 
 var log = common.NewLogger("backtesting")

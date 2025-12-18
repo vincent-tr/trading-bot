@@ -2,10 +2,10 @@ package runner
 
 import (
 	"fmt"
-	"go-experiments/brokers/backtesting"
-	"go-experiments/common"
-	"go-experiments/traders"
-	"go-experiments/traders/modular"
+	"trading-bot/brokers/backtesting"
+	"trading-bot/common"
+	"trading-bot/traders"
+	"trading-bot/traders/modular"
 )
 
 var log = common.NewLogger("runner")

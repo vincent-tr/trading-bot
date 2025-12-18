@@ -1,11 +1,11 @@
 package strategies
 
 import (
-	"go-experiments/common"
-	"go-experiments/traders/modular"
-	"go-experiments/traders/modular/conditions"
-	"go-experiments/traders/modular/indicators"
 	"time"
+	"trading-bot/common"
+	"trading-bot/traders/modular"
+	"trading-bot/traders/modular/conditions"
+	"trading-bot/traders/modular/indicators"
 )
 
 func Reversal(strategy modular.StrategyBuilder) {

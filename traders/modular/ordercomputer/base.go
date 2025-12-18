@@ -1,10 +1,10 @@
 package ordercomputer
 
 import (
-	"go-experiments/brokers"
-	"go-experiments/traders/modular/context"
-	"go-experiments/traders/modular/formatter"
-	"go-experiments/traders/modular/marshal"
+	"trading-bot/brokers"
+	"trading-bot/traders/modular/context"
+	"trading-bot/traders/modular/formatter"
+	"trading-bot/traders/modular/marshal"
 )
 
 type OrderComputer interface {

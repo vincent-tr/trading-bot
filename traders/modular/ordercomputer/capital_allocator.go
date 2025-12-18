@@ -3,10 +3,10 @@ package ordercomputer
 import (
 	"encoding/json"
 	"fmt"
-	"go-experiments/brokers"
-	"go-experiments/traders/modular/context"
-	"go-experiments/traders/modular/formatter"
 	"math"
+	"trading-bot/brokers"
+	"trading-bot/traders/modular/context"
+	"trading-bot/traders/modular/formatter"
 )
 
 func CapitalRiskPercent(riskPerTradePercent float64) OrderComputer {

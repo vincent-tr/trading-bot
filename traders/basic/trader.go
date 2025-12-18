@@ -1,8 +1,8 @@
 package basic
 
 import (
-	"go-experiments/brokers"
-	"go-experiments/common"
+	"trading-bot/brokers"
+	"trading-bot/common"
 )
 
 var log = common.NewLogger("traders/basic")
