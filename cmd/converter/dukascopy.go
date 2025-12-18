@@ -10,6 +10,8 @@ import (
 	"strings"
 )
 
+const dukascopyPath = dataPath + "/dukascopy"
+
 // Dukascopy CSV format:
 // timestamp,askPrice,bidPrice
 // Example: 1704146412108,1.10481,1.10427
@@ -72,8 +74,8 @@ func loadDukascopyCsv(csvFile string) ([]parquetTick, error) {
 }
 
 func convertDukascopyCsvFiles() error {
-	// Look for CSV files in dukascopy subdirectory
-	pattern := filepath.Join(dataPath, "dukascopy", "*.csv")
+	// Look for CSV files in dukascopy directory
+	pattern := filepath.Join(dukascopyPath, "*.csv")
 	files, err := filepath.Glob(pattern)
 	if err != nil {
 		return fmt.Errorf("failed to list CSV files: %v", err)
@@ -97,8 +99,7 @@ func convertDukascopyCsvFiles() error {
 		year := parts[2]                        // 2024
 		month := parts[3]                       // 01
 		parquetName := fmt.Sprintf("%s_%s%s.parquet", instrument, year, month)
-		parquetDir := filepath.Join(dataPath, "dukascopy")
-		parquetPath := filepath.Join(parquetDir, parquetName)
+		parquetPath := filepath.Join(dukascopyPath, parquetName)
 
 		if _, err := os.Stat(parquetPath); err == nil {
 			fmt.Printf("✅ Parquet exists: %s (skipping)\n", parquetName)

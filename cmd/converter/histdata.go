@@ -16,7 +16,7 @@ import (
 	"github.com/xitongsys/parquet-go/writer"
 )
 
-const dataPath = "brokers/backtesting/data/histdata"
+const histdataPath = dataPath + "/histdata"
 
 // https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/EURUSD
 
@@ -123,7 +123,7 @@ func writeParquet(filename string, ticks []parquetTick) error {
 }
 
 func convertMissingParquetFiles() error {
-	files, err := filepath.Glob(filepath.Join(dataPath, "HISTDATA_COM_ASCII_*.zip"))
+	files, err := filepath.Glob(filepath.Join(histdataPath, "HISTDATA_COM_ASCII_*.zip"))
 	if err != nil {
 		return fmt.Errorf("failed to list zip files: %v", err)
 	}
@@ -140,7 +140,7 @@ func convertMissingParquetFiles() error {
 		instrument := strings.ToUpper(parts[3])   // EURUSD
 		date := strings.TrimPrefix(parts[4], "T") // 202401
 		parquetName := fmt.Sprintf("%s_%s.parquet", instrument, date)
-		parquetPath := filepath.Join(dataPath, parquetName)
+		parquetPath := filepath.Join(histdataPath, parquetName)
 
 		if _, err := os.Stat(parquetPath); err == nil {
 			fmt.Printf("✅ Parquet exists: %s (skipping)\n", parquetName)

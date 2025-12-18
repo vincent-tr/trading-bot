@@ -4,6 +4,8 @@ import (
 	"fmt"
 )
 
+const dataPath = "brokers/backtesting/data"
+
 type parquetTick struct {
 	Timestamp int64   `parquet:"name=timestamp, type=INT64, convertedtype=TIMESTAMP_MILLIS"` // Store as milliseconds since epoch
 	Bid       float64 `parquet:"name=bid, type=DOUBLE"`
