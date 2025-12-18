@@ -2,8 +2,8 @@
 
 # Download all Dukascopy EURUSD tick data
 # Usage: ./download-dukascopy.sh [start_year] [start_month] [end_year] [end_month]
-# Example: ./download-dukascopy.sh 2009 12 2025 6
-# Or just run without args to download from 2009-12 to current date
+# Example: ./download-dukascopy.sh 2022 1 2025 6
+# Or just run without args to download from 2022-01 to previous month
 
 set -e
 
@@ -12,11 +12,22 @@ DOWNLOAD_DIR="download"
 TARGET_CSV_DIR="brokers/backtesting/data/dukascopy"
 TARGET_PARQUET_DIR="brokers/backtesting/data/dukascopy"
 
+# Calculate previous month (exclude current incomplete month)
+CURRENT_YEAR=$(date +%Y)
+CURRENT_MONTH=$((10#$(date +%m)))
+if [ $CURRENT_MONTH -eq 1 ]; then
+    PREV_YEAR=$((CURRENT_YEAR - 1))
+    PREV_MONTH=12
+else
+    PREV_YEAR=$CURRENT_YEAR
+    PREV_MONTH=$((CURRENT_MONTH - 1))
+fi
+
 # Default values
-START_YEAR=${1:-2009}
-START_MONTH=${2:-12}
-END_YEAR=${3:-$(date +%Y)}
-END_MONTH=${4:-$(date +%m)}
+START_YEAR=${1:-2022}
+START_MONTH=${2:-1}
+END_YEAR=${3:-$PREV_YEAR}
+END_MONTH=${4:-$PREV_MONTH}
 
 # Remove leading zeros for arithmetic
 START_MONTH=$((10#$START_MONTH))
