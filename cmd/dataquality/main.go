@@ -5,6 +5,7 @@ import (
 	"image/color"
 	"log"
 	"os"
+	"strings"
 	"time"
 	"trading-bot/brokers/backtesting"
 	"trading-bot/common"
@@ -121,16 +122,106 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// Print some statistics to verify data differences
-	fmt.Println("\nData Statistics:")
+	// Print comprehensive statistics about data differences
+	fmt.Println("\n" + strings.Repeat("=", 80))
+	fmt.Println("DATA QUALITY ANALYSIS - HISTDATA vs DUKASCOPY")
+	fmt.Println(strings.Repeat("=", 80))
+
+	// Calculate totals and statistics
 	totalHistTicks := 0
 	totalDukasTicks := 0
+	histHoursWithData := 0
+	dukasHoursWithData := 0
+	bothHoursWithData := 0
+	histOnlyHours := 0
+	dukasOnlyHours := 0
+
+	var histPrices, dukasPrices, histSpreads, dukasSpreads []float64
+
 	for _, b := range buckets {
 		totalHistTicks += b.histCount
 		totalDukasTicks += b.dukasCount
+
+		hasHist := b.histCount > 0
+		hasDukas := b.dukasCount > 0
+
+		if hasHist {
+			histHoursWithData++
+			histPrices = append(histPrices, b.histMidPrice)
+			histSpreads = append(histSpreads, b.histSpread)
+		}
+		if hasDukas {
+			dukasHoursWithData++
+			dukasPrices = append(dukasPrices, b.dukasMidPrice)
+			dukasSpreads = append(dukasSpreads, b.dukasSpread)
+		}
+		if hasHist && hasDukas {
+			bothHoursWithData++
+		}
+		if hasHist && !hasDukas {
+			histOnlyHours++
+		}
+		if !hasHist && hasDukas {
+			dukasOnlyHours++
+		}
 	}
-	fmt.Printf("Total HistData ticks: %d\n", totalHistTicks)
-	fmt.Printf("Total Dukascopy ticks: %d\n", totalDukasTicks)
+
+	// Overall statistics
+	fmt.Println("\n📊 TICK COUNT COMPARISON")
+	fmt.Printf("  HistData:   %10d ticks (%6.2f%% of total)\n", totalHistTicks,
+		float64(totalHistTicks)*100/float64(totalHistTicks+totalDukasTicks))
+	fmt.Printf("  Dukascopy:  %10d ticks (%6.2f%% of total)\n", totalDukasTicks,
+		float64(totalDukasTicks)*100/float64(totalHistTicks+totalDukasTicks))
+	fmt.Printf("  Difference: %10d ticks (%.2fx more in %s)\n",
+		abs(totalHistTicks-totalDukasTicks),
+		float64(max(totalHistTicks, totalDukasTicks))/float64(min(totalHistTicks, totalDukasTicks)),
+		ternary(totalHistTicks > totalDukasTicks, "HistData", "Dukascopy"))
+
+	// Coverage statistics
+	fmt.Println("\n⏰ TIME COVERAGE")
+	fmt.Printf("  Total hours analyzed:     %d\n", len(buckets))
+	fmt.Printf("  HistData hours:           %d (%5.2f%%)\n", histHoursWithData,
+		float64(histHoursWithData)*100/float64(len(buckets)))
+	fmt.Printf("  Dukascopy hours:          %d (%5.2f%%)\n", dukasHoursWithData,
+		float64(dukasHoursWithData)*100/float64(len(buckets)))
+	fmt.Printf("  Both sources:             %d (%5.2f%%)\n", bothHoursWithData,
+		float64(bothHoursWithData)*100/float64(len(buckets)))
+	fmt.Printf("  HistData only:            %d\n", histOnlyHours)
+	fmt.Printf("  Dukascopy only:           %d\n", dukasOnlyHours)
+
+	// Density statistics
+	if histHoursWithData > 0 && dukasHoursWithData > 0 {
+		avgHistTicksPerHour := float64(totalHistTicks) / float64(histHoursWithData)
+		avgDukasTicksPerHour := float64(totalDukasTicks) / float64(dukasHoursWithData)
+
+		fmt.Println("\n📈 AVERAGE TICK DENSITY (per hour with data)")
+		fmt.Printf("  HistData:   %8.2f ticks/hour\n", avgHistTicksPerHour)
+		fmt.Printf("  Dukascopy:  %8.2f ticks/hour\n", avgDukasTicksPerHour)
+		fmt.Printf("  Difference: %8.2f ticks/hour (%.2f%%)\n",
+			avgDukasTicksPerHour-avgHistTicksPerHour,
+			(avgDukasTicksPerHour-avgHistTicksPerHour)*100/avgHistTicksPerHour)
+	}
+
+	// Price statistics
+	if len(histPrices) > 0 && len(dukasPrices) > 0 {
+		histMinPrice, histMaxPrice := minMax(histPrices)
+		dukasMinPrice, dukasMaxPrice := minMax(dukasPrices)
+		histAvgSpread := average(histSpreads)
+		dukasAvgSpread := average(dukasSpreads)
+
+		fmt.Println("\n💰 PRICE RANGE")
+		fmt.Printf("  HistData:   %.5f - %.5f (range: %.5f)\n", histMinPrice, histMaxPrice, histMaxPrice-histMinPrice)
+		fmt.Printf("  Dukascopy:  %.5f - %.5f (range: %.5f)\n", dukasMinPrice, dukasMaxPrice, dukasMaxPrice-dukasMinPrice)
+
+		fmt.Println("\n📏 AVERAGE SPREAD")
+		fmt.Printf("  HistData:   %.5f (%.2f pips)\n", histAvgSpread, histAvgSpread*10000)
+		fmt.Printf("  Dukascopy:  %.5f (%.2f pips)\n", dukasAvgSpread, dukasAvgSpread*10000)
+		fmt.Printf("  Difference: %.5f (%.2f pips)\n", dukasAvgSpread-histAvgSpread, (dukasAvgSpread-histAvgSpread)*10000)
+	}
+
+	fmt.Println("\n" + strings.Repeat("=", 80))
+	fmt.Println("📁 Generating charts...")
+	fmt.Println(strings.Repeat("=", 80))
 
 	plotTickDensity(buckets)
 	plotPriceAndSpread(buckets)
@@ -369,4 +460,60 @@ func plotPriceAndSpread(data []*bucket) {
 	}
 
 	fmt.Println("Spread comparison chart saved to output/spread-comparison.png")
+}
+
+// Helper functions for statistics
+func abs(n int) int {
+	if n < 0 {
+		return -n
+	}
+	return n
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func ternary(condition bool, trueVal, falseVal string) string {
+	if condition {
+		return trueVal
+	}
+	return falseVal
+}
+
+func minMax(values []float64) (float64, float64) {
+	if len(values) == 0 {
+		return 0, 0
+	}
+	min, max := values[0], values[0]
+	for _, v := range values {
+		if v < min {
+			min = v
+		}
+		if v > max {
+			max = v
+		}
+	}
+	return min, max
+}
+
+func average(values []float64) float64 {
+	if len(values) == 0 {
+		return 0
+	}
+	sum := 0.0
+	for _, v := range values {
+		sum += v
+	}
+	return sum / float64(len(values))
 }
