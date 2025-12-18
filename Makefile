@@ -1,4 +1,4 @@
-.PHONY: convert download
+.PHONY: convert download-dukascopy
 
 # Run the data converter
 convert:
