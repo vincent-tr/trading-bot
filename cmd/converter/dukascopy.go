@@ -115,6 +115,13 @@ func convertDukascopyCsvFiles() error {
 		if err := writeParquet(parquetPath, ticks); err != nil {
 			return fmt.Errorf("failed to write parquet: %v", err)
 		}
+
+		// Delete source CSV file after successful conversion
+		if err := os.Remove(csvFile); err != nil {
+			fmt.Printf("⚠️  Warning: failed to delete source file %s: %v\n", base, err)
+		} else {
+			fmt.Printf("🗑️  Deleted source file: %s\n", base)
+		}
 	}
 
 	return nil

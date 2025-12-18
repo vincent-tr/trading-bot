@@ -9,7 +9,8 @@ set -e
 
 # Directories
 DOWNLOAD_DIR="download"
-TARGET_DIR="brokers/backtesting/data/dukascopy"
+TARGET_CSV_DIR="brokers/backtesting/data/dukascopy"
+TARGET_PARQUET_DIR="brokers/backtesting/data/dukascopy"
 
 # Default values
 START_YEAR=${1:-2009}
@@ -22,7 +23,7 @@ START_MONTH=$((10#$START_MONTH))
 END_MONTH=$((10#$END_MONTH))
 
 # Create target directory if it doesn't exist
-mkdir -p "$TARGET_DIR"
+mkdir -p "$TARGET_CSV_DIR"
 
 # Clean up partially downloaded CSV files in download directory
 echo "🧹 Cleaning up download directory..."
@@ -63,13 +64,20 @@ while [ $YEAR -lt $END_YEAR ] || { [ $YEAR -eq $END_YEAR ] && [ $MONTH -le $END_
     FROM_DATE=$(printf "%04d-%02d-01" $YEAR $MONTH)
     TO_DATE=$(printf "%04d-%02d-%s" $YEAR $MONTH $LAST_DAY)
     
-    # Expected filename
+    # Expected filenames
     CSV_FILE="eurusd-tick-${FROM_DATE}-${TO_DATE}.csv"
-    TARGET_FILE="$TARGET_DIR/$CSV_FILE"
+    TARGET_CSV_FILE="$TARGET_CSV_DIR/$CSV_FILE"
+    PARQUET_FILE=$(printf "EURUSD_%04d%02d.parquet" $YEAR $MONTH)
+    TARGET_PARQUET_FILE="$TARGET_PARQUET_DIR/$PARQUET_FILE"
     
-    # Check if file already exists in target directory
-    if [ -f "$TARGET_FILE" ]; then
-        echo "⏭️  Skipping $FROM_DATE (already exists)"
+    # Check if parquet file already exists (means it's been converted)
+    if [ -f "$TARGET_PARQUET_FILE" ]; then
+        echo "⏭️  Skipping $FROM_DATE (parquet already exists)"
+        SKIPPED=$((SKIPPED + 1))
+        TOTAL=$((TOTAL + 1))
+    # Check if CSV file already exists in target directory
+    elif [ -f "$TARGET_CSV_FILE" ]; then
+        echo "⏭️  Skipping $FROM_DATE (CSV already exists)"
         SKIPPED=$((SKIPPED + 1))
         TOTAL=$((TOTAL + 1))
     else
@@ -80,7 +88,7 @@ while [ $YEAR -lt $END_YEAR ] || { [ $YEAR -eq $END_YEAR ] && [ $MONTH -le $END_
         if npx dukascopy-node -i eurusd -from "$FROM_DATE" -to "$TO_DATE" -t tick -f csv; then
             # Move downloaded file to target directory
             if [ -f "$DOWNLOAD_DIR/$CSV_FILE" ]; then
-                mv "$DOWNLOAD_DIR/$CSV_FILE" "$TARGET_FILE"
+                mv "$DOWNLOAD_DIR/$CSV_FILE" "$TARGET_CSV_FILE"
                 echo "✅ Downloaded and moved $CSV_FILE"
                 SUCCESS=$((SUCCESS + 1))
             else
@@ -102,6 +110,14 @@ while [ $YEAR -lt $END_YEAR ] || { [ $YEAR -eq $END_YEAR ] && [ $MONTH -le $END_
         MONTH=$((MONTH + 1))
     fi
 done
+
+# Clean up download directory
+echo ""
+echo "🧹 Cleaning up..."
+if [ -d "$DOWNLOAD_DIR" ]; then
+    rm -rf "$DOWNLOAD_DIR"
+    echo "✅ Removed download directory"
+fi
 
 echo "=========================================="
 echo "✅ Download complete!"
