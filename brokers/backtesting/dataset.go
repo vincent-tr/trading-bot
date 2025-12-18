@@ -162,7 +162,7 @@ type file struct {
 }
 
 func openFile(year int, month int, symbol string) (*file, error) {
-	parquetFile := path.Join(dataPath, fmt.Sprintf("HISTDATA_COM_%s_T%04d%02d.parquet", symbol, year, month))
+	parquetFile := path.Join(dataPath, fmt.Sprintf("%s_%04d%02d.parquet", symbol, year, month))
 
 	// Open Parquet file
 	pFile, err := local.NewLocalFileReader(parquetFile)

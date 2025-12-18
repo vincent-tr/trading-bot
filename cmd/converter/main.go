@@ -11,9 +11,21 @@ type parquetTick struct {
 }
 
 func main() {
-	// Convert all csv files where the target does not exist
+	fmt.Println("🔄 Starting data conversion...")
+
+	// Convert HistData ZIP files
+	fmt.Println("\n📁 Processing HistData files...")
 	err := convertMissingParquetFiles()
 	if err != nil {
-		fmt.Printf("❌ Conversion failed: %v\n", err)
+		fmt.Printf("❌ HistData conversion failed: %v\n", err)
 	}
+
+	// Convert Dukascopy CSV files
+	fmt.Println("\n📁 Processing Dukascopy files...")
+	err = convertDukascopyCsvFiles()
+	if err != nil {
+		fmt.Printf("❌ Dukascopy conversion failed: %v\n", err)
+	}
+
+	fmt.Println("\n✅ Conversion complete!")
 }

@@ -130,8 +130,16 @@ func convertMissingParquetFiles() error {
 
 	for _, zipFile := range files {
 		base := filepath.Base(zipFile)
-		base = strings.Replace(base, "HISTDATA_COM_ASCII_", "HISTDATA_COM_", 1)
-		parquetName := strings.TrimSuffix(base, ".zip") + ".parquet"
+		// Parse: HISTDATA_COM_ASCII_EURUSD_T202401.zip → EURUSD_202401.parquet
+		parts := strings.Split(strings.TrimSuffix(base, ".zip"), "_")
+		if len(parts) < 5 {
+			fmt.Printf("⚠️  Skipping file with unexpected name format: %s\n", base)
+			continue
+		}
+
+		instrument := strings.ToUpper(parts[3])   // EURUSD
+		date := strings.TrimPrefix(parts[4], "T") // 202401
+		parquetName := fmt.Sprintf("%s_%s.parquet", instrument, date)
 		parquetPath := filepath.Join(dataPath, parquetName)
 
 		if _, err := os.Stat(parquetPath); err == nil {
