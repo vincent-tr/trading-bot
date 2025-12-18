@@ -16,7 +16,7 @@ import (
 	"github.com/xitongsys/parquet-go/writer"
 )
 
-const dataPath = "brokers/backtesting/data"
+const dataPath = "brokers/backtesting/data/histdata"
 
 // https://www.histdata.com/download-free-forex-historical-data/?/ascii/tick-data-quotes/EURUSD
 
