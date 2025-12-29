@@ -1,4 +1,4 @@
-.PHONY: convert download-dukascopy
+.PHONY: convert download-dukascopy oneshot
 
 # Run the data converter
 convert:
@@ -9,3 +9,8 @@ convert:
 download-dukascopy:
 	@echo "📥 Downloading Dukascopy data..."
 	./download-dukascopy.sh
+
+# Run oneshot command
+oneshot:
+	@echo "🚀 Running oneshot..."
+	go run ./cmd/oneshot
