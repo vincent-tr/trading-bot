@@ -100,3 +100,8 @@ func (h *History) GetHighest(timeperiod int) float64 {
 
 	return highest
 }
+
+// / GetCandle returns the candle at the specified index (0-based, 0 = last, -1 = second last, -2 the one before, etc.).
+func (h *History) GetCandle(index int) brokers.Candle {
+	return h.candles[len(h.candles)-1+index]
+}

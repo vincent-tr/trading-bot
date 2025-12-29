@@ -178,3 +178,89 @@ func init() {
 		return PriceThreshold(indicator, direction), nil
 	})
 }
+
+type SlopeDirection int
+
+const (
+	SlopeRising SlopeDirection = iota
+	SlopeFalling
+)
+
+// / Slope checks if the slope of an indicator is rising or falling.
+func Slope(indicator indicators.Indicator, period int, direction SlopeDirection) Condition {
+	return newCondition(
+		func(ctx context.TraderContext) bool {
+			values := indicator.Values(ctx)
+			if len(values) < period+1 {
+				return false
+			}
+
+			prevValue := values[len(values)-period-1]
+			currValue := values[len(values)-1]
+
+			switch direction {
+			case SlopeRising:
+				return currValue > prevValue
+			case SlopeFalling:
+				return currValue < prevValue
+			default:
+				panic(fmt.Sprintf("unknown slope direction: %d", direction))
+			}
+		},
+		func() *formatter.FormatterNode {
+			return formatter.Format("Slope",
+				indicator.Format(),
+				formatter.Format(fmt.Sprintf("Period: %d", period)),
+				formatter.Format(fmt.Sprintf("Direction: %s", direction.String())),
+			)
+		},
+		func() (string, any) {
+			var directionStr string
+			switch direction {
+			case SlopeRising:
+				directionStr = "rising"
+			case SlopeFalling:
+				directionStr = "falling"
+			default:
+				panic(fmt.Sprintf("unknown slope direction: %d", direction))
+			}
+
+			return "slope", map[string]any{
+				"indicator": marshal.ToJSON(indicator),
+				"period":    period,
+				"direction": directionStr,
+			}
+		},
+	)
+}
+
+func init() {
+	jsonParsers.RegisterParser("slope", func(arg json.RawMessage) (Condition, error) {
+		var params struct {
+			Indicator json.RawMessage `json:"indicator"`
+			Period    int             `json:"period"`
+			Direction string          `json:"direction"`
+		}
+
+		if err := json.Unmarshal(arg, &params); err != nil {
+			return nil, fmt.Errorf("failed to parse Slope parameters: %w", err)
+		}
+
+		indicator, err := indicators.FromJSON(params.Indicator)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse indicator: %w", err)
+		}
+
+		var direction SlopeDirection
+		switch params.Direction {
+		case "rising":
+			direction = SlopeRising
+		case "falling":
+			direction = SlopeFalling
+		default:
+			return nil, fmt.Errorf("unknown direction: %s", params.Direction)
+		}
+
+		return Slope(indicator, params.Period, direction), nil
+	})
+}

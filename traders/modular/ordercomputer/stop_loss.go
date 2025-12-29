@@ -125,3 +125,56 @@ func init() {
 		return StopLossPipBuffer(params.PipBuffer, params.LookupPeriod), nil
 	})
 }
+
+func StopLossLoopback(pipBuffer int, lookupPeriod int) OrderComputer {
+	pipDistance := float64(pipBuffer) * pipSize
+
+	return newOrderComputer(
+		func(ctx context.TraderContext, order *brokers.Order) error {
+
+			switch order.Direction {
+			case brokers.PositionDirectionLong:
+				// find lowest low in last lookupPeriod minutes
+				lowest := ctx.HistoricalData().GetLowest(lookupPeriod)
+				order.StopLoss = lowest - pipDistance
+				return nil
+
+			case brokers.PositionDirectionShort:
+				// find highest high in last lookupPeriod minutes
+				highest := ctx.HistoricalData().GetHighest(lookupPeriod)
+				order.StopLoss = highest + pipDistance
+				return nil
+
+			default:
+				return fmt.Errorf("invalid position direction: %s", order.Direction.String())
+			}
+		},
+		func() *formatter.FormatterNode {
+			return formatter.Format("StopLossLoopback",
+				formatter.Format(fmt.Sprintf("Pip Buffer: %d", pipBuffer)),
+				formatter.Format(fmt.Sprintf("Lookup Period: %d", lookupPeriod)),
+			)
+		},
+		func() (string, any) {
+			return "stopLossLoopback", map[string]any{
+				"pipBuffer":    pipBuffer,
+				"lookupPeriod": lookupPeriod,
+			}
+		},
+	)
+}
+
+func init() {
+	jsonParsers.RegisterParser("stopLossLoopback", func(arg json.RawMessage) (OrderComputer, error) {
+		var params struct {
+			PipBuffer    int `json:"pipBuffer"`
+			LookupPeriod int `json:"lookupPeriod"`
+		}
+
+		if err := json.Unmarshal(arg, &params); err != nil {
+			return nil, fmt.Errorf("failed to parse StopLossLoopback parameters: %w", err)
+		}
+
+		return StopLossLoopback(params.PipBuffer, params.LookupPeriod), nil
+	})
+}
