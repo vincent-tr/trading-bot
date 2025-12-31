@@ -5,10 +5,9 @@ import (
 	"time"
 	"trading-bot/brokers/backtesting"
 	"trading-bot/common"
-	"trading-bot/strategies"
 	"trading-bot/traders"
-	"trading-bot/traders/modular"
-	"trading-bot/traders/modular/ordercomputer"
+	"trading-bot/traders/expression"
+	"trading-bot/traders/expression/conditions"
 )
 
 func main() {
@@ -43,24 +42,25 @@ func main() {
 		panic(err)
 	}
 
-	builder := modular.NewBuilder()
+	builder := expression.NewBuilder()
 	builder.SetHistorySize(250)
 
-	strategies.Simple(builder.Strategy())
+	strategy := builder.Strategy()
+	strategy.SetFilter(conditions.And())
+	/*
+		builder.RiskManager().SetStopLoss(
+			ordercomputer.StopLossLoopback(1, 10),
+		).SetTakeProfit(
+			ordercomputer.TakeProfitRatio(1.0),
+		)
 
-	builder.RiskManager().SetStopLoss(
-		ordercomputer.StopLossLoopback(1, 10),
-	).SetTakeProfit(
-		ordercomputer.TakeProfitRatio(1.0),
-	)
+		builder.CapitalAllocator().SetAllocator(
+			ordercomputer.CapitalFixed(10),
+		)
+	*/
+	fmt.Printf("STRAT: %s\n", builder.Format().Compact())
 
-	builder.CapitalAllocator().SetAllocator(
-		ordercomputer.CapitalFixed(10),
-	)
-
-	fmt.Printf("STRAT JSON: %s\n", modular.ToJSON(builder))
-
-	if err := traders.SetupModularTrader(broker, builder); err != nil {
+	if err := traders.SetupExpessionTrader(broker, builder); err != nil {
 		panic(err)
 	}
 	if err := broker.Run(); err != nil {
