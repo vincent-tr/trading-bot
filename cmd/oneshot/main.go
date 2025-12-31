@@ -8,6 +8,7 @@ import (
 	"trading-bot/traders"
 	"trading-bot/traders/expression"
 	"trading-bot/traders/expression/conditions"
+	"trading-bot/traders/expression/indicators"
 	"trading-bot/traders/expression/ordercomputer"
 )
 
@@ -58,10 +59,10 @@ func main() {
 				),
 			),
 			expression.LongTrigger(
-				conditions.PriceThreshold(expression.EMA(20), conditions.Below),
+				conditions.PriceThreshold(indicators.EMA(20), conditions.Below),
 			),
 			expression.ShortTrigger(
-				conditions.PriceThreshold(expression.EMA(20), conditions.Above),
+				conditions.PriceThreshold(indicators.EMA(20), conditions.Above),
 			),
 		),
 		expression.RiskManager(
