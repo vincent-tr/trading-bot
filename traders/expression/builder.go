@@ -7,108 +7,122 @@ import (
 	"trading-bot/traders/expression/ordercomputer"
 )
 
-type Builder interface {
-	formatter.Formatter
-	SetHistorySize(size int) Builder
-	Strategy() StrategyBuilder
-	RiskManager() RiskManagerBuilder
-	CapitalAllocator() CapitalAllocatorBuilder
+type Configuration struct {
+	historySizeConfiguration
+	strategyConfiguration
+	riskManagerConfiguration
+	capitalAllocatorConfiguration
 }
 
-func NewBuilder() Builder {
-	return &builder{}
+func Builder(
+	historySize *historySizeConfiguration,
+	strategy *strategyConfiguration,
+	riskManager *riskManagerConfiguration,
+	capitalAllocator *capitalAllocatorConfiguration,
+) *Configuration {
+	return &Configuration{
+		historySizeConfiguration:      *historySize,
+		strategyConfiguration:         *strategy,
+		riskManagerConfiguration:      *riskManager,
+		capitalAllocatorConfiguration: *capitalAllocator,
+	}
 }
 
-type StrategyBuilder interface {
-	SetFilter(condition conditions.Condition) StrategyBuilder
-	SetLongTrigger(trigger conditions.Condition) StrategyBuilder
-	SetShortTrigger(trigger conditions.Condition) StrategyBuilder
+type historySizeConfiguration struct {
+	historySize int
 }
 
-type RiskManagerBuilder interface {
-	SetStopLoss(computer ordercomputer.OrderComputer) RiskManagerBuilder
-	SetTakeProfit(computer ordercomputer.OrderComputer) RiskManagerBuilder
+func HistorySize(size int) *historySizeConfiguration {
+	return &historySizeConfiguration{historySize: size}
 }
 
-type CapitalAllocatorBuilder interface {
-	SetAllocator(computer ordercomputer.OrderComputer) CapitalAllocatorBuilder
+type strategyConfiguration struct {
+	filter       conditions.Condition
+	longTrigger  conditions.Condition
+	shortTrigger conditions.Condition
 }
 
-type builder struct {
-	historySize      int
-	filter           conditions.Condition
-	longTrigger      conditions.Condition
-	shortTrigger     conditions.Condition
-	stopLoss         ordercomputer.OrderComputer
-	takeProfit       ordercomputer.OrderComputer
-	capitalAllocator ordercomputer.OrderComputer
+func Strategy(filter *strategyFilterConfiguration, longTrigger *strategyLongTriggerConfiguration, shortTrigger *strategyShortTriggerConfiguration) *strategyConfiguration {
+	return &strategyConfiguration{
+		filter:       filter.value,
+		longTrigger:  longTrigger.value,
+		shortTrigger: shortTrigger.value,
+	}
 }
 
-var _ Builder = (*builder)(nil)
-var _ StrategyBuilder = (*builder)(nil)
-var _ RiskManagerBuilder = (*builder)(nil)
-var _ CapitalAllocatorBuilder = (*builder)(nil)
-
-func (b *builder) SetHistorySize(size int) Builder {
-	b.historySize = size
-	return b
+type strategyFilterConfiguration struct {
+	value conditions.Condition
 }
 
-func (b *builder) Strategy() StrategyBuilder {
-	return b
+func Filter(value conditions.Condition) *strategyFilterConfiguration {
+	return &strategyFilterConfiguration{value}
 }
 
-func (b *builder) RiskManager() RiskManagerBuilder {
-	return b
+type strategyLongTriggerConfiguration struct {
+	value conditions.Condition
 }
 
-func (b *builder) CapitalAllocator() CapitalAllocatorBuilder {
-	return b
+func LongTrigger(value conditions.Condition) *strategyLongTriggerConfiguration {
+	return &strategyLongTriggerConfiguration{value}
 }
 
-func (b *builder) SetFilter(filter conditions.Condition) StrategyBuilder {
-	b.filter = filter
-	return b
+type strategyShortTriggerConfiguration struct {
+	value conditions.Condition
 }
 
-func (b *builder) SetLongTrigger(trigger conditions.Condition) StrategyBuilder {
-	b.longTrigger = trigger
-	return b
+func ShortTrigger(value conditions.Condition) *strategyShortTriggerConfiguration {
+	return &strategyShortTriggerConfiguration{value}
 }
 
-func (b *builder) SetShortTrigger(trigger conditions.Condition) StrategyBuilder {
-	b.shortTrigger = trigger
-	return b
+type riskManagerConfiguration struct {
+	stopLoss   ordercomputer.OrderComputer
+	takeProfit ordercomputer.OrderComputer
 }
 
-func (b *builder) SetStopLoss(computer ordercomputer.OrderComputer) RiskManagerBuilder {
-	b.stopLoss = computer
-	return b
+func RiskManager(stopLoss *riskManagerStopLossConfiguration, takeProfit *riskManagerTakeProfitConfiguration) *riskManagerConfiguration {
+	return &riskManagerConfiguration{
+		stopLoss:   stopLoss.value,
+		takeProfit: takeProfit.value,
+	}
 }
 
-func (b *builder) SetTakeProfit(computer ordercomputer.OrderComputer) RiskManagerBuilder {
-	b.takeProfit = computer
-	return b
+type riskManagerStopLossConfiguration struct {
+	value ordercomputer.OrderComputer
 }
 
-func (b *builder) SetAllocator(computer ordercomputer.OrderComputer) CapitalAllocatorBuilder {
-	b.capitalAllocator = computer
-	return b
+func StopLoss(value ordercomputer.OrderComputer) *riskManagerStopLossConfiguration {
+	return &riskManagerStopLossConfiguration{value}
 }
 
-func (b *builder) Format() *formatter.FormatterNode {
+type riskManagerTakeProfitConfiguration struct {
+	value ordercomputer.OrderComputer
+}
+
+func TakeProfit(value ordercomputer.OrderComputer) *riskManagerTakeProfitConfiguration {
+	return &riskManagerTakeProfitConfiguration{value}
+}
+
+type capitalAllocatorConfiguration struct {
+	allocator ordercomputer.OrderComputer
+}
+
+func CapitalAllocator(value ordercomputer.OrderComputer) *capitalAllocatorConfiguration {
+	return &capitalAllocatorConfiguration{value}
+}
+
+func (config *Configuration) Format() *formatter.FormatterNode {
 	return formatter.Format("ModularTrader",
-		formatter.Format(fmt.Sprintf("HistorySize: %d", b.historySize)),
-		formatter.FormatWithChildren("Filter", b.filter),
-		formatter.FormatWithChildren("LongTrigger", b.longTrigger),
-		formatter.FormatWithChildren("ShortTrigger", b.shortTrigger),
+		formatter.Format(fmt.Sprintf("HistorySize: %d", config.historySize)),
+		formatter.FormatWithChildren("Filter", config.filter),
+		formatter.FormatWithChildren("LongTrigger", config.longTrigger),
+		formatter.FormatWithChildren("ShortTrigger", config.shortTrigger),
 		formatter.FormatWithChildren("StopLoss", b.stopLoss),
 		formatter.FormatWithChildren("TakeProfit", b.takeProfit),
 		formatter.FormatWithChildren("CapitalAllocator", b.capitalAllocator),
 	)
 }
 
-func Format(b Builder) string {
+func Format(b *Configuration) string {
 	bu, ok := b.(*builder)
 	if !ok {
 		panic(fmt.Sprintf("invalid builder type: %T", b))

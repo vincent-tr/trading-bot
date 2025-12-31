@@ -7,6 +7,7 @@ import (
 
 const Package string = "conditions"
 
+// / Condition represents a trading condition that can be evaluated within a trading context.
 type Condition interface {
 	formatter.Formatter
 	Execute(ctx context.TraderContext) bool
