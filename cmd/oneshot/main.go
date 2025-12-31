@@ -8,6 +8,7 @@ import (
 	"trading-bot/traders"
 	"trading-bot/traders/expression"
 	"trading-bot/traders/expression/conditions"
+	"trading-bot/traders/expression/ordercomputer"
 )
 
 func main() {
@@ -68,13 +69,13 @@ func main() {
 			expression.TakeProfit(),
 		),
 		expression.CapitalAllocator(
-			expression.CapitalFixed(10),
+			ordercomputer.CapitalFixed(10),
 		),
 	)
 
 	fmt.Printf("STRAT: %s\n", config.Format().Compact())
 
-	if err := traders.SetupExpessionTrader(broker, builder); err != nil {
+	if err := traders.SetupExpressionTrader(broker, config); err != nil {
 		panic(err)
 	}
 	if err := broker.Run(); err != nil {

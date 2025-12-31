@@ -6,6 +6,8 @@ import (
 	"trading-bot/traders/expression/formatter"
 )
 
+const Package string = "ordercomputer"
+
 // / OrderComputer is an interface for computing orders properties based on trader context.
 type OrderComputer interface {
 	formatter.Formatter

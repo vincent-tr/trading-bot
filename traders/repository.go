@@ -22,6 +22,6 @@ func SetupModularTrader(broker brokers.Broker, builder modular.Builder) error {
 	return modular.Setup(broker, builder)
 }
 
-func SetupExpessionTrader(broker brokers.Broker, config *expression.Configuration) error {
+func SetupExpressionTrader(broker brokers.Broker, config *expression.Configuration) error {
 	return expression.Setup(broker, config)
 }
