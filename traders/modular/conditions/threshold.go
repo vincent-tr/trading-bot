@@ -186,6 +186,17 @@ const (
 	SlopeFalling
 )
 
+func (d SlopeDirection) String() string {
+	switch d {
+	case SlopeRising:
+		return "rising"
+	case SlopeFalling:
+		return "falling"
+	default:
+		return "unknown"
+	}
+}
+
 // / Slope checks if the slope of an indicator is rising or falling.
 func Slope(indicator indicators.Indicator, period int, direction SlopeDirection) Condition {
 	return newCondition(
@@ -262,5 +273,90 @@ func init() {
 		}
 
 		return Slope(indicator, params.Period, direction), nil
+	})
+}
+
+func Compare(indicatorA, indicatorB indicators.Indicator, direction Direction) Condition {
+	return newCondition(
+		func(ctx context.TraderContext) bool {
+			valuesA := indicatorA.Values(ctx)
+			valuesB := indicatorB.Values(ctx)
+
+			if len(valuesA) == 0 || len(valuesB) == 0 {
+				return false
+			}
+
+			valueA := valuesA[len(valuesA)-1]
+			valueB := valuesB[len(valuesB)-1]
+
+			switch direction {
+			case Above:
+				return valueA >= valueB
+			case Below:
+				return valueA <= valueB
+			default:
+				panic(fmt.Sprintf("unknown comparison direction: %d", direction))
+			}
+		},
+		func() *formatter.FormatterNode {
+			return formatter.Format("Compare",
+				indicatorA.Format(),
+				indicatorB.Format(),
+				formatter.Format(fmt.Sprintf("Direction: %s", direction.String())),
+			)
+		},
+		func() (string, any) {
+			var directionStr string
+			switch direction {
+			case Above:
+				directionStr = "above"
+			case Below:
+				directionStr = "below"
+			default:
+				panic(fmt.Sprintf("unknown comparison direction: %d", direction))
+			}
+
+			return "compare", map[string]any{
+				"indicatorA": marshal.ToJSON(indicatorA),
+				"indicatorB": marshal.ToJSON(indicatorB),
+				"direction":  directionStr,
+			}
+		},
+	)
+}
+
+func init() {
+	jsonParsers.RegisterParser("compare", func(arg json.RawMessage) (Condition, error) {
+		var params struct {
+			IndicatorA json.RawMessage `json:"indicatorA"`
+			IndicatorB json.RawMessage `json:"indicatorB"`
+			Direction  string          `json:"direction"`
+		}
+
+		if err := json.Unmarshal(arg, &params); err != nil {
+			return nil, fmt.Errorf("failed to parse Compare parameters: %w", err)
+		}
+
+		indicatorA, err := indicators.FromJSON(params.IndicatorA)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse indicatorA: %w", err)
+		}
+
+		indicatorB, err := indicators.FromJSON(params.IndicatorB)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse indicatorB: %w", err)
+		}
+
+		var direction Direction
+		switch params.Direction {
+		case "above":
+			direction = Above
+		case "below":
+			direction = Below
+		default:
+			return nil, fmt.Errorf("unknown direction: %s", params.Direction)
+		}
+
+		return Compare(indicatorA, indicatorB, direction), nil
 	})
 }
