@@ -8,12 +8,12 @@ import (
 	"trading-bot/strategies"
 	"trading-bot/traders"
 	"trading-bot/traders/modular"
-	"trading-bot/traders/modular/indicators"
 	"trading-bot/traders/modular/ordercomputer"
 )
 
 func main() {
 	dataset, err := backtesting.LoadDataset(
+		backtesting.HistData,
 		common.NewMonth(2024, 1),
 		common.NewMonth(2024, 12),
 		"EURUSD",
@@ -46,13 +46,12 @@ func main() {
 	builder := modular.NewBuilder()
 	builder.SetHistorySize(250)
 
-	strategies.Breakout(builder.Strategy())
+	strategies.Simple(builder.Strategy())
 
 	builder.RiskManager().SetStopLoss(
-		ordercomputer.StopLossATR(indicators.ATR(14), 1.0),
-		//ordercomputer.StopLossPipBuffer(3, 15),
+		ordercomputer.StopLossLoopback(1, 10),
 	).SetTakeProfit(
-		ordercomputer.TakeProfitRatio(2.0),
+		ordercomputer.TakeProfitRatio(1.0),
 	)
 
 	builder.CapitalAllocator().SetAllocator(
