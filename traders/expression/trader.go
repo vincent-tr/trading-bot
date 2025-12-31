@@ -16,14 +16,14 @@ import (
 
 var log = common.NewLogger("traders/expression")
 
-func Setup(broker brokers.Broker, builder Builder) error {
+func Setup(broker brokers.Broker, config *Configuration) error {
 
-	trader, err := newTrader(broker, builder)
+	trader, err := newTrader(broker, config)
 	if err != nil {
 		return err
 	}
 
-	log.Debug("%s", builder.Format().Detailed())
+	log.Debug("%s", config.Format().Detailed())
 
 	broker.RegisterMarketDataCallback(brokers.Timeframe1Minute, func(candle brokers.Candle) {
 		trader.tick(candle)
@@ -45,52 +45,39 @@ type trader struct {
 	capitalAllocator ordercomputer.OrderComputer
 }
 
-func newTrader(broker brokers.Broker, builder Builder) (*trader, error) {
-	b, err := getBuilder(builder)
-	if err != nil {
-		return nil, err
-	}
+func newTrader(broker brokers.Broker, config *Configuration) (*trader, error) {
 
-	if b.historySize <= 0 {
+	if config.historySize <= 0 {
 		return nil, fmt.Errorf("history size must be greater than 0")
 	}
-	if b.filter == nil {
+	if config.filter == nil {
 		return nil, fmt.Errorf("filter must be set")
 	}
-	if b.longTrigger == nil && b.shortTrigger == nil {
+	if config.longTrigger == nil && config.shortTrigger == nil {
 		return nil, fmt.Errorf("either long or short trigger must be set")
 	}
-	if b.stopLoss == nil {
+	if config.stopLoss == nil {
 		return nil, fmt.Errorf("stop loss computer must be set")
 	}
-	if b.takeProfit == nil {
+	if config.takeProfit == nil {
 		return nil, fmt.Errorf("take profit computer must be set")
 	}
-	if b.capitalAllocator == nil {
+	if config.capitalAllocator == nil {
 		return nil, fmt.Errorf("capital allocator must be set")
 	}
 
 	return &trader{
 		broker:           broker,
-		history:          tools.NewHistory(b.historySize),
+		history:          tools.NewHistory(config.historySize),
 		openPositions:    make(map[brokers.Position]struct{}),
 		indicatorCache:   indicators.NewCache(),
-		filter:           b.filter,
-		longTrigger:      b.longTrigger,
-		shortTrigger:     b.shortTrigger,
-		stopLoss:         b.stopLoss,
-		takeProfit:       b.takeProfit,
-		capitalAllocator: b.capitalAllocator,
+		filter:           config.filter,
+		longTrigger:      config.longTrigger,
+		shortTrigger:     config.shortTrigger,
+		stopLoss:         config.stopLoss,
+		takeProfit:       config.takeProfit,
+		capitalAllocator: config.capitalAllocator,
 	}, nil
-}
-
-// workaround builder naming conflict
-func getBuilder(bi Builder) (*builder, error) {
-	b, ok := bi.(*builder)
-	if !ok {
-		return nil, fmt.Errorf("invalid builder type: %T", bi)
-	}
-	return b, nil
 }
 
 func (t *trader) tick(candle brokers.Candle) {

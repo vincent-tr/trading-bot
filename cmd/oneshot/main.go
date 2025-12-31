@@ -42,23 +42,37 @@ func main() {
 		panic(err)
 	}
 
-	builder := expression.NewBuilder()
-	builder.SetHistorySize(250)
+	config := expression.Builder(
+		expression.HistorySize(250),
+		expression.Strategy(
+			expression.Filter(
+				conditions.And(
+					conditions.HistoryUsable(),
+					conditions.NoOpenPositions(),
+					// conditions.Weekday(time.Tuesday, time.Wednesday, time.Thursday),
+					// conditions.ExcludeUKHolidays(),
+					// conditions.ExcludeUSHolidays(),
+					conditions.Session(conditions.SessionLondon),
+					conditions.Session(conditions.SessionNewYork),
+				),
+			),
+			expression.LongTrigger(
+				conditions.PriceThreshold(expression.EMA(20), conditions.Below),
+			),
+			expression.ShortTrigger(
+				conditions.PriceThreshold(expression.EMA(20), conditions.Above),
+			),
+		),
+		expression.RiskManager(
+			expression.StopLoss(),
+			expression.TakeProfit(),
+		),
+		expression.CapitalAllocator(
+			expression.CapitalFixed(10),
+		),
+	)
 
-	strategy := builder.Strategy()
-	strategy.SetFilter(conditions.And())
-	/*
-		builder.RiskManager().SetStopLoss(
-			ordercomputer.StopLossLoopback(1, 10),
-		).SetTakeProfit(
-			ordercomputer.TakeProfitRatio(1.0),
-		)
-
-		builder.CapitalAllocator().SetAllocator(
-			ordercomputer.CapitalFixed(10),
-		)
-	*/
-	fmt.Printf("STRAT: %s\n", builder.Format().Compact())
+	fmt.Printf("STRAT: %s\n", config.Format().Compact())
 
 	if err := traders.SetupExpessionTrader(broker, builder); err != nil {
 		panic(err)
