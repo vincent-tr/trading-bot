@@ -65,15 +65,15 @@ func main() {
 			),
 		),
 		expression.RiskManager(
-			expression.StopLoss(),
-			expression.TakeProfit(),
+			expression.StopLoss(ordercomputer.StopLossPips(5)),
+			expression.TakeProfit(ordercomputer.TakeProfitPips(10)),
 		),
 		expression.CapitalAllocator(
 			ordercomputer.CapitalFixed(10),
 		),
 	)
 
-	fmt.Printf("STRAT: %s\n", config.Format().Compact())
+	fmt.Printf("STRAT:\n%s\n", config.Format().Compact())
 
 	if err := traders.SetupExpressionTrader(broker, config); err != nil {
 		panic(err)

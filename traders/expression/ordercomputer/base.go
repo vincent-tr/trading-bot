@@ -8,6 +8,8 @@ import (
 
 const Package string = "ordercomputer"
 
+const pipSize = 0.0001
+
 // / OrderComputer is an interface for computing orders properties based on trader context.
 type OrderComputer interface {
 	formatter.Formatter
