@@ -2,6 +2,7 @@ package tools
 
 import (
 	"trading-bot/brokers"
+	"trading-bot/traders/tools"
 )
 
 type History struct {
@@ -42,7 +43,7 @@ func (h *History) GetPrice() float64 {
 	return h.candles[len(h.candles)-1].Close
 }
 
-func (h *History) GetClosePrices() []float64 {
+func (h *History) GetClosePrices() *tools.Values {
 	size := len(h.candles)
 	prices := make([]float64, size)
 
@@ -50,10 +51,10 @@ func (h *History) GetClosePrices() []float64 {
 		prices[i] = h.candles[i].Close
 	}
 
-	return prices
+	return tools.NewValues(prices)
 }
 
-func (h *History) GetHighPrices() []float64 {
+func (h *History) GetHighPrices() *tools.Values {
 	size := len(h.candles)
 	prices := make([]float64, size)
 
@@ -61,10 +62,10 @@ func (h *History) GetHighPrices() []float64 {
 		prices[i] = h.candles[i].High
 	}
 
-	return prices
+	return tools.NewValues(prices)
 }
 
-func (h *History) GetLowPrices() []float64 {
+func (h *History) GetLowPrices() *tools.Values {
 	size := len(h.candles)
 	prices := make([]float64, size)
 
@@ -72,7 +73,7 @@ func (h *History) GetLowPrices() []float64 {
 		prices[i] = h.candles[i].Low
 	}
 
-	return prices
+	return tools.NewValues(prices)
 }
 
 func (h *History) GetLowest(timeperiod int) float64 {
@@ -101,7 +102,7 @@ func (h *History) GetHighest(timeperiod int) float64 {
 	return highest
 }
 
-// / GetCandle returns the candle at the specified index (0-based, 0 = last, -1 = second last, -2 the one before, etc.).
+// GetCandle returns the candle at the specified index (0-based, 0 = last, 1 = second last, 2 the one before, etc.).
 func (h *History) GetCandle(index int) brokers.Candle {
-	return h.candles[len(h.candles)-1+index]
+	return h.candles[len(h.candles)-1-index]
 }

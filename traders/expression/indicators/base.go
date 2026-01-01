@@ -4,27 +4,30 @@ import (
 	"trading-bot/traders/expression/context"
 	"trading-bot/traders/expression/formatter"
 	"trading-bot/traders/expression/values"
+	"trading-bot/traders/tools"
 )
 
+const Package string = "indicators"
+
 type cache struct {
-	indicators map[string]*Values
+	indicators map[string]*tools.Values
 }
 
 func NewCache() context.IndicatorCache {
 	return &cache{
-		indicators: make(map[string]*Values),
+		indicators: make(map[string]*tools.Values),
 	}
 }
 
 func (c *cache) Tick() {
-	c.indicators = make(map[string]*Values)
+	c.indicators = make(map[string]*tools.Values)
 }
 
-func (c *cache) access(key string, computer func() []float64) *Values {
+func (c *cache) access(key string, computer func() []float64) *tools.Values {
 	if data, found := c.indicators[key]; found {
 		return data
 	}
-	data := &Values{computer()}
+	data := tools.NewValues(computer())
 	c.indicators[key] = data
 	return data
 }
@@ -33,23 +36,7 @@ func (c *cache) access(key string, computer func() []float64) *Values {
 type Indicator interface {
 	formatter.Formatter
 	values.Value
-	Values(ctx context.TraderContext) *Values
-}
-
-type Values struct {
-	data []float64
-}
-
-func (values *Values) Current() float64 {
-	return values.data[len(values.data)-1]
-}
-
-func (values *Values) Previous() float64 {
-	return values.data[len(values.data)-2]
-}
-
-func (values *Values) All() []float64 {
-	return values.data
+	Values(ctx context.TraderContext) *tools.Values
 }
 
 type indicator struct {
@@ -67,7 +54,7 @@ func newIndicator(
 	}
 }
 
-func (i *indicator) Values(ctx context.TraderContext) *Values {
+func (i *indicator) Values(ctx context.TraderContext) *tools.Values {
 	c := ctx.IndicatorCache().(*cache)
 	key := i.format().Compact()
 
