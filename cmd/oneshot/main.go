@@ -12,7 +12,45 @@ import (
 	"trading-bot/traders/expression/ordercomputer"
 )
 
+func testConfig() {
+
+	config := expression.Builder(
+		expression.HistorySize(250),
+		expression.Strategy(
+			expression.Filter(
+				conditions.And(
+					conditions.HistoryUsable(),
+					conditions.NoOpenPositions(),
+					// conditions.Weekday(time.Tuesday, time.Wednesday, time.Thursday),
+					// conditions.ExcludeUKHolidays(),
+					// conditions.ExcludeUSHolidays(),
+					conditions.Session(conditions.SessionLondon),
+					conditions.Session(conditions.SessionNewYork),
+				),
+			),
+			expression.LongTrigger(
+				conditions.PriceAbove(indicators.EMA(10)),
+			),
+			expression.ShortTrigger(
+				conditions.PriceBelow(indicators.EMA(10)),
+			),
+		),
+		expression.RiskManager(
+			expression.StopLoss(ordercomputer.StopLossPips(5)),
+			expression.TakeProfit(ordercomputer.TakeProfitPips(5)),
+		),
+		expression.CapitalAllocator(
+			ordercomputer.CapitalFixed(10),
+		),
+	)
+
+	fmt.Printf("STRAT:\n%s\n", config.Format().Detailed())
+}
+
 func main() {
+	testConfig()
+	return
+
 	dataset, err := backtesting.LoadDataset(
 		backtesting.HistData,
 		common.NewMonth(2024, 1),

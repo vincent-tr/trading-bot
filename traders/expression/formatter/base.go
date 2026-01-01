@@ -114,16 +114,24 @@ func (n *FormatterNode) detailedWithIndent(indent int) string {
 		return ind + n.fullName()
 
 	case NodeFunction:
+		// If there is no children or only children that are values, print in one line
+		allChildrenAreValues := true
+		for _, child := range n.children {
+			if child.type_ != NodeValue {
+				allChildrenAreValues = false
+				break
+			}
+		}
+		if allChildrenAreValues {
+			return ind + n.Compact()
+		}
+
 		rows := []string{
 			ind + n.fullName() + "(",
 		}
 
-		for i, child := range n.children {
-			if i > 0 {
-				rows = append(rows, ",")
-			}
-
-			rows = append(rows, child.detailedWithIndent(indent+1))
+		for _, child := range n.children {
+			rows = append(rows, child.detailedWithIndent(indent+1)+",")
 		}
 
 		rows = append(rows, ind+")")
