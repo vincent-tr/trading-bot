@@ -2,7 +2,6 @@ package tools
 
 import (
 	"trading-bot/brokers"
-	"trading-bot/traders/tools"
 )
 
 type History struct {
@@ -43,7 +42,7 @@ func (h *History) GetPrice() float64 {
 	return h.candles[len(h.candles)-1].Close
 }
 
-func (h *History) GetClosePrices() *tools.Values {
+func (h *History) GetClosePrices() *Values {
 	size := len(h.candles)
 	prices := make([]float64, size)
 
@@ -51,10 +50,10 @@ func (h *History) GetClosePrices() *tools.Values {
 		prices[i] = h.candles[i].Close
 	}
 
-	return tools.NewValues(prices)
+	return NewValues(prices)
 }
 
-func (h *History) GetHighPrices() *tools.Values {
+func (h *History) GetHighPrices() *Values {
 	size := len(h.candles)
 	prices := make([]float64, size)
 
@@ -62,10 +61,10 @@ func (h *History) GetHighPrices() *tools.Values {
 		prices[i] = h.candles[i].High
 	}
 
-	return tools.NewValues(prices)
+	return NewValues(prices)
 }
 
-func (h *History) GetLowPrices() *tools.Values {
+func (h *History) GetLowPrices() *Values {
 	size := len(h.candles)
 	prices := make([]float64, size)
 
@@ -73,7 +72,7 @@ func (h *History) GetLowPrices() *tools.Values {
 		prices[i] = h.candles[i].Low
 	}
 
-	return tools.NewValues(prices)
+	return NewValues(prices)
 }
 
 func (h *History) GetLowest(timeperiod int) float64 {

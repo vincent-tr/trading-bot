@@ -13,7 +13,7 @@ func ATR(period int) Indicator {
 	return newIndicator(
 		func(ctx context.TraderContext) []float64 {
 			history := ctx.HistoricalData()
-			return talib.Atr(history.GetHighPrices(), history.GetLowPrices(), history.GetClosePrices(), period)
+			return talib.Atr(history.GetHighPrices().All(), history.GetLowPrices().All(), history.GetClosePrices().All(), period)
 		},
 		func() *formatter.FormatterNode {
 			return formatter.Format("ATR", formatter.Format(fmt.Sprintf("Period: %d", period)))

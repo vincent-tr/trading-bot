@@ -18,7 +18,7 @@ func DistancePriceToPrevious(indicator indicators.Indicator, period int, directi
 				return false
 			}
 
-			prices := history.GetClosePrices()
+			prices := history.GetClosePrices().All()
 
 			currentDistance := abs(prices[len(prices)-1] - values[len(values)-1])
 			previousDistance := abs(prices[len(prices)-period-1] - values[len(values)-period-1])

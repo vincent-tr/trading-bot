@@ -16,7 +16,7 @@ func BreakRangeHigh(loopbackPeriod int) Condition {
 
 			hightest := math.Inf(-1)
 			for i := 1; i <= loopbackPeriod; i++ {
-				price := high.Get(i)
+				price := high.At(i)
 				if price > hightest {
 					hightest = price
 				}
@@ -44,7 +44,7 @@ func BreakRangeLow(loopbackPeriod int) Condition {
 
 			lowest := math.Inf(1)
 			for i := 1; i <= loopbackPeriod; i++ {
-				price := low.Get(i)
+				price := low.At(i)
 				if price < lowest {
 					lowest = price
 				}

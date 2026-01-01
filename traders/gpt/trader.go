@@ -151,7 +151,7 @@ func (t *trader) tick(candle brokers.Candle) {
 func (t *trader) shouldTakePosition() (bool, brokers.PositionDirection) {
 	var defaultValue brokers.PositionDirection
 
-	closePrices := t.history.GetClosePrices()
+	closePrices := t.history.GetClosePrices().All()
 	last := len(closePrices) - 1
 
 	// RSI must be between RsiMin and RsiMax (neutral zone)
@@ -164,8 +164,8 @@ func (t *trader) shouldTakePosition() (bool, brokers.PositionDirection) {
 
 	// If ADX is enabled, check if the trend is strong enough
 	if t.config.AdxEnabled {
-		highPrices := t.history.GetHighPrices()
-		lowPrices := t.history.GetLowPrices()
+		highPrices := t.history.GetHighPrices().All()
+		lowPrices := t.history.GetLowPrices().All()
 		adx := talib.Adx(highPrices, lowPrices, closePrices, t.config.AdxPeriod)
 		currAdx := adx[last]
 
@@ -220,9 +220,9 @@ func (t *trader) computeStopLoss(direction brokers.PositionDirection) float64 {
 
 	if t.config.StopLossAtrEnabled {
 		// Use ATR for stop-loss calculation
-		highPrices := t.history.GetHighPrices()
-		lowPrices := t.history.GetLowPrices()
-		closePrices := t.history.GetClosePrices()
+		highPrices := t.history.GetHighPrices().All()
+		lowPrices := t.history.GetLowPrices().All()
+		closePrices := t.history.GetClosePrices().All()
 
 		atr := talib.Atr(highPrices, lowPrices, closePrices, t.config.StopLossAtrPeriod)
 		last := len(atr) - 1

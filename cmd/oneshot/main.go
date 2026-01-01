@@ -59,15 +59,15 @@ func main() {
 				),
 			),
 			expression.LongTrigger(
-				conditions.PriceThreshold(indicators.EMA(20), conditions.Below),
+				conditions.PriceAbove(indicators.EMA(10)),
 			),
 			expression.ShortTrigger(
-				conditions.PriceThreshold(indicators.EMA(20), conditions.Above),
+				conditions.PriceBelow(indicators.EMA(10)),
 			),
 		),
 		expression.RiskManager(
 			expression.StopLoss(ordercomputer.StopLossPips(5)),
-			expression.TakeProfit(ordercomputer.TakeProfitPips(10)),
+			expression.TakeProfit(ordercomputer.TakeProfitPips(5)),
 		),
 		expression.CapitalAllocator(
 			ordercomputer.CapitalFixed(10),
