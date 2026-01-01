@@ -5,6 +5,8 @@ import (
 	"trading-bot/traders/expression/formatter"
 )
 
+const Package string = "values"
+
 // Value is an interface for getting a float64 value.
 type Value interface {
 	formatter.Formatter

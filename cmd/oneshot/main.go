@@ -10,6 +10,7 @@ import (
 	"trading-bot/traders/expression/conditions"
 	"trading-bot/traders/expression/indicators"
 	"trading-bot/traders/expression/ordercomputer"
+	"trading-bot/traders/expression/values"
 )
 
 func main() {
@@ -56,13 +57,29 @@ func main() {
 					// conditions.ExcludeUSHolidays(),
 					conditions.Session(conditions.SessionLondon),
 					conditions.Session(conditions.SessionNewYork),
+
+					// Volatility expansion
+					conditions.ValueAbove(
+						indicators.ATR(14),
+						indicators.Mean(indicators.ATR(14), 10),
+					),
+
+					// Range must be tight
+					conditions.ValueBelow(
+						values.RangeSize(20),
+						indicators.ATR(14),
+					),
 				),
 			),
 			expression.LongTrigger(
-				conditions.PriceAbove(indicators.EMA(10)),
+				conditions.PriceAbove(
+					values.RangeHigh(20),
+				),
 			),
 			expression.ShortTrigger(
-				conditions.PriceBelow(indicators.EMA(10)),
+				conditions.PriceBelow(
+					values.RangeLow(20),
+				),
 			),
 		),
 		expression.RiskManager(
