@@ -83,8 +83,12 @@ func main() {
 			),
 		),
 		expression.RiskManager(
-			expression.StopLoss(ordercomputer.StopLossPips(5)),
-			expression.TakeProfit(ordercomputer.TakeProfitPips(5)),
+			expression.StopLoss(
+				ordercomputer.StopLossFromRange(20, 1),
+			),
+			expression.TakeProfit(
+				ordercomputer.TakeProfitFromRange(20),
+			),
 		),
 		expression.CapitalAllocator(
 			ordercomputer.CapitalFixed(10),
