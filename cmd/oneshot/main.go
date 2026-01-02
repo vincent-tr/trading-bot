@@ -45,6 +45,8 @@ func main() {
 		panic(err)
 	}
 
+	const RangeDuration int = 10
+
 	config := expression.Builder(
 		expression.HistorySize(250),
 		expression.Strategy(
@@ -55,39 +57,41 @@ func main() {
 					// conditions.Weekday(time.Tuesday, time.Wednesday, time.Thursday),
 					// conditions.ExcludeUKHolidays(),
 					// conditions.ExcludeUSHolidays(),
-					conditions.Session(conditions.SessionLondon),
-					conditions.Session(conditions.SessionNewYork),
+					// conditions.Session(conditions.SessionLondon),
+					// conditions.Session(conditions.SessionNewYork),
 
 					// Volatility expansion
-					conditions.ValueAbove(
-						indicators.ATR(14),
-						indicators.Mean(indicators.ATR(14), 10),
-					),
+					/*
+						conditions.ValueAbove(
+							indicators.ATR(14),
+							indicators.Mean(indicators.ATR(14), 10),
+						),
+					*/
 
 					// Range must be tight
 					conditions.ValueBelow(
-						values.RangeSize(20),
+						values.RangeSize(RangeDuration),
 						indicators.ATR(14),
 					),
 				),
 			),
 			expression.LongTrigger(
 				conditions.PriceAbove(
-					values.RangeHigh(20),
+					values.RangeHigh(RangeDuration),
 				),
 			),
 			expression.ShortTrigger(
 				conditions.PriceBelow(
-					values.RangeLow(20),
+					values.RangeLow(RangeDuration),
 				),
 			),
 		),
 		expression.RiskManager(
 			expression.StopLoss(
-				ordercomputer.StopLossFromRange(20, 1),
+				ordercomputer.StopLossFromRange(RangeDuration, 1),
 			),
 			expression.TakeProfit(
-				ordercomputer.TakeProfitFromRange(20),
+				ordercomputer.TakeProfitFromRange(RangeDuration),
 			),
 		),
 		expression.CapitalAllocator(
