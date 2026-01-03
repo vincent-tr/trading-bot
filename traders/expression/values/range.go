@@ -6,23 +6,72 @@ import (
 	"trading-bot/traders/expression/formatter"
 )
 
+type rangeConfig struct {
+	period int
+	offset int
+}
+
+func makeRangeConfig(period int, options []RangeOption) *rangeConfig {
+	conf := &rangeConfig{
+		period: period,
+		offset: 1, // Default offset is 1 to exclude the current candle
+	}
+
+	for _, option := range options {
+		option.apply(conf)
+	}
+
+	return conf
+}
+
+func formatRangeOptions(options []RangeOption) []*formatter.FormatterNode {
+	nodes := make([]*formatter.FormatterNode, 0, len(options))
+
+	for _, option := range options {
+		if option.format != nil {
+			nodes = append(nodes, option.format())
+		}
+	}
+
+	return nodes
+}
+
+type RangeOption struct {
+	apply  func(*rangeConfig)
+	format func() *formatter.FormatterNode
+}
+
+func Offset(offset int) RangeOption {
+	return RangeOption{
+		apply: func(ctx *rangeConfig) {
+			ctx.offset = offset
+		},
+		format: func() *formatter.FormatterNode {
+			return formatter.Function(Package, "Offset", formatter.IntValue(offset))
+		},
+	}
+}
+
 // RangeSize computes the range (high - low) over a specified number of historical candles.
 // It returns the difference between the highest high and lowest low within the period.
 // The offset parameter shifts the range window backward in time (offset=1 excludes only the last candle).
 // For example, RangeSize(20, 1) calculates the range from candles 1-20 bars ago (skipping the most recent completed candle).
-func RangeSize(period int, offset int) Value {
+func RangeSize(period int, options ...RangeOption) Value {
 	return newValue(
 		func(ctx context.TraderContext) float64 {
-			high := getRangeHigh(ctx, period, offset)
-			low := getRangeLow(ctx, period, offset)
+			conf := makeRangeConfig(period, options)
+
+			high := getRangeHigh(ctx, conf)
+			low := getRangeLow(ctx, conf)
 			return high - low
 		},
 		func() *formatter.FormatterNode {
 			return formatter.Function(
 				Package,
 				"RangeSize",
-				formatter.IntValue(period),
-				formatter.IntValue(offset),
+				append([]*formatter.FormatterNode{
+					formatter.IntValue(period),
+				}, formatRangeOptions(options)...)...,
 			)
 		},
 	)
@@ -31,17 +80,19 @@ func RangeSize(period int, offset int) Value {
 // RangeHigh returns the highest high price over a specified number of historical candles.
 // The offset parameter shifts the range window backward in time (offset=1 excludes only the last candle).
 // For example, RangeHigh(20, 1) finds the highest price from candles 1-20 bars ago.
-func RangeHigh(period int, offset int) Value {
+func RangeHigh(period int, options ...RangeOption) Value {
 	return newValue(
 		func(ctx context.TraderContext) float64 {
-			return getRangeHigh(ctx, period, offset)
+			conf := makeRangeConfig(period, options)
+			return getRangeHigh(ctx, conf)
 		},
 		func() *formatter.FormatterNode {
 			return formatter.Function(
 				Package,
 				"RangeHigh",
-				formatter.IntValue(period),
-				formatter.IntValue(offset),
+				append([]*formatter.FormatterNode{
+					formatter.IntValue(period),
+				}, formatRangeOptions(options)...)...,
 			)
 		},
 	)
@@ -50,28 +101,30 @@ func RangeHigh(period int, offset int) Value {
 // RangeLow returns the lowest low price over a specified number of historical candles.
 // The offset parameter shifts the range window backward in time (offset=1 excludes only the last candle).
 // For example, RangeLow(20, 1) finds the lowest price from candles 1-20 bars ago.
-func RangeLow(period int, offset int) Value {
+func RangeLow(period int, options ...RangeOption) Value {
 	return newValue(
 		func(ctx context.TraderContext) float64 {
-			return getRangeLow(ctx, period, offset)
+			conf := makeRangeConfig(period, options)
+			return getRangeLow(ctx, conf)
 		},
 		func() *formatter.FormatterNode {
 			return formatter.Function(
 				Package,
 				"RangeLow",
-				formatter.IntValue(period),
-				formatter.IntValue(offset),
+				append([]*formatter.FormatterNode{
+					formatter.IntValue(period),
+				}, formatRangeOptions(options)...)...,
 			)
 		},
 	)
 }
 
-func getRangeHigh(ctx context.TraderContext, period int, offset int) float64 {
+func getRangeHigh(ctx context.TraderContext, conf *rangeConfig) float64 {
 	highs := ctx.HistoricalData().GetHighPrices()
 
 	hightest := math.Inf(-1)
 
-	for i := offset; i < period+offset; i++ {
+	for i := conf.offset; i < conf.period+conf.offset; i++ {
 		price := highs.At(i)
 		if price > hightest {
 			hightest = price
@@ -81,12 +134,12 @@ func getRangeHigh(ctx context.TraderContext, period int, offset int) float64 {
 	return hightest
 }
 
-func getRangeLow(ctx context.TraderContext, period int, offset int) float64 {
+func getRangeLow(ctx context.TraderContext, conf *rangeConfig) float64 {
 	lows := ctx.HistoricalData().GetLowPrices()
 
 	lowest := math.Inf(1)
 
-	for i := offset; i < period+offset; i++ {
+	for i := conf.offset; i < conf.period+conf.offset; i++ {
 		price := lows.At(i)
 		if price < lowest {
 			lowest = price

@@ -69,19 +69,19 @@ func main() {
 
 					// Range must be tight
 					conditions.ValueBelow(
-						values.RangeSize(RangeDuration, ConfirmationDuration),
+						values.RangeSize(RangeDuration, values.Offset(ConfirmationDuration)),
 						values.Factor(indicators.ATR(14), 1.2),
 					),
 				),
 			),
 			expression.LongTrigger(
 				conditions.PriceAbove(
-					values.RangeHigh(RangeDuration, ConfirmationDuration),
+					values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
 				),
 			),
 			expression.ShortTrigger(
 				conditions.PriceBelow(
-					values.RangeLow(RangeDuration, ConfirmationDuration),
+					values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
 				),
 			),
 		),
