@@ -1,47 +1,152 @@
 package conditions
 
 import (
+	"trading-bot/brokers"
 	"trading-bot/traders/expression/context"
 	"trading-bot/traders/expression/formatter"
 	"trading-bot/traders/expression/values"
 )
 
+type priceConfig struct {
+	candleGetter func(candle *brokers.Candle) float64
+	value        values.Value
+	comparer     func(price float64, indicatorValue float64) bool
+}
+
+func candleOpen(candle *brokers.Candle) float64 {
+	return candle.Open
+}
+
+func candleHigh(candle *brokers.Candle) float64 {
+	return candle.High
+}
+
+func candleLow(candle *brokers.Candle) float64 {
+	return candle.Low
+}
+
+func candleClose(candle *brokers.Candle) float64 {
+	return candle.Close
+}
+
+func comparerAbove(price float64, indicatorValue float64) bool {
+	return price > indicatorValue
+}
+
+func comparerBelow(price float64, indicatorValue float64) bool {
+	return price < indicatorValue
+}
+
+func makePriceConfig(comparer func(price float64, indicatorValue float64) bool, value values.Value, options ...PriceOption) *priceConfig {
+	conf := &priceConfig{
+		comparer:     comparer,
+		value:        value,
+		candleGetter: candleClose, // Default to close price
+	}
+
+	for _, option := range options {
+		option.apply(conf)
+	}
+
+	return conf
+}
+
+func formatPriceOptions(options []PriceOption) []*formatter.FormatterNode {
+	nodes := make([]*formatter.FormatterNode, 0, len(options))
+
+	for _, option := range options {
+		if option.format != nil {
+			nodes = append(nodes, option.format())
+		}
+	}
+
+	return nodes
+}
+
+type PriceOption struct {
+	apply  func(*priceConfig)
+	format func() *formatter.FormatterNode
+}
+
+var Open = PriceOption{
+	apply: func(ctx *priceConfig) {
+		ctx.candleGetter = candleOpen
+	},
+	format: func() *formatter.FormatterNode {
+		return formatter.Value(Package, "Open")
+	},
+}
+
+var High = PriceOption{
+	apply: func(ctx *priceConfig) {
+		ctx.candleGetter = candleHigh
+	},
+	format: func() *formatter.FormatterNode {
+		return formatter.Value(Package, "High")
+	},
+}
+
+var Low = PriceOption{
+	apply: func(ctx *priceConfig) {
+		ctx.candleGetter = candleLow
+	},
+	format: func() *formatter.FormatterNode {
+		return formatter.Value(Package, "Low")
+	},
+}
+
+var Close = PriceOption{
+	apply: func(ctx *priceConfig) {
+		ctx.candleGetter = candleClose
+	},
+	format: func() *formatter.FormatterNode {
+		return formatter.Value(Package, "Close")
+	},
+}
+
 // PriceAbove returns a condition that checks if the current price is above the given value.
-func PriceAbove(value values.Value) Condition {
+func PriceAbove(value values.Value, options ...PriceOption) Condition {
 	return newCondition(
 		func(ctx context.TraderContext) bool {
-			price := ctx.HistoricalData().GetPrice()
-			indicatorValue := value.Get(ctx)
-
-			return price > indicatorValue
+			conf := makePriceConfig(comparerAbove, value, options...)
+			return priceCompare(conf, ctx)
 		},
 		func() *formatter.FormatterNode {
 			return formatter.Function(
 				Package,
 				"PriceAbove",
-				value.Format(),
+				append([]*formatter.FormatterNode{
+					value.Format(),
+				}, formatPriceOptions(options)...)...,
 			)
 		},
 	)
 }
 
 // PriceBelow returns a condition that checks if the current price is below the given value.
-func PriceBelow(value values.Value) Condition {
+func PriceBelow(value values.Value, options ...PriceOption) Condition {
 	return newCondition(
 		func(ctx context.TraderContext) bool {
-			price := ctx.HistoricalData().GetPrice()
-			valueValue := value.Get(ctx)
-
-			return price < valueValue
+			conf := makePriceConfig(comparerBelow, value, options...)
+			return priceCompare(conf, ctx)
 		},
 		func() *formatter.FormatterNode {
 			return formatter.Function(
 				Package,
 				"PriceBelow",
-				value.Format(),
+				append([]*formatter.FormatterNode{
+					value.Format(),
+				}, formatPriceOptions(options)...)...,
 			)
 		},
 	)
+}
+
+func priceCompare(conf *priceConfig, ctx context.TraderContext) bool {
+	candle := ctx.HistoricalData().GetCandle(0)
+	price := conf.candleGetter(&candle)
+	indicatorValue := conf.value.Get(ctx)
+	return conf.comparer(price, indicatorValue)
 }
 
 // ValueAbove returns a condition that checks if valueA is above valueB.

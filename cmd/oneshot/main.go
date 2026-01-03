@@ -75,13 +75,55 @@ func main() {
 				),
 			),
 			expression.LongTrigger(
-				conditions.PriceAbove(
-					values.RangeHigh(RangeDuration),
+				conditions.Or(
+
+					// Case A: clean breakout
+					conditions.PriceAbove(
+						values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
+					),
+
+					// Case B: partial breakout acceptance
+					conditions.And(
+						conditions.PriceAbove(
+							values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
+							conditions.High,
+						),
+						conditions.PriceAbove(
+							values.Subtract(
+								values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
+								values.Factor(
+									indicators.ATR(14),
+									0.15,
+								),
+							),
+						),
+					),
 				),
 			),
 			expression.ShortTrigger(
-				conditions.PriceBelow(
-					values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
+				conditions.Or(
+
+					// Case A: clean breakdown
+					conditions.PriceBelow(
+						values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
+					),
+
+					// Case B: partial breakdown acceptance
+					conditions.And(
+						conditions.PriceBelow(
+							values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
+							conditions.Low,
+						),
+						conditions.PriceBelow(
+							values.Add(
+								values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
+								values.Factor(
+									indicators.ATR(14),
+									0.15,
+								),
+							),
+						),
+					),
 				),
 			),
 		),
