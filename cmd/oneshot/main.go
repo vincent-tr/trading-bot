@@ -76,7 +76,7 @@ func main() {
 			),
 			expression.LongTrigger(
 				conditions.PriceAbove(
-					values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
+					values.RangeHigh(RangeDuration),
 				),
 			),
 			expression.ShortTrigger(
@@ -87,7 +87,7 @@ func main() {
 		),
 		expression.RiskManager(
 			expression.StopLoss(
-				ordercomputer.StopLossFromRange(RangeDuration, ConfirmationDuration, 1),
+				ordercomputer.StopLossFromRange(RangeDuration, 1, values.Offset(ConfirmationDuration)),
 			),
 			expression.TakeProfit(
 				ordercomputer.TakeProfitRatio(1.5),
