@@ -8,9 +8,9 @@ import (
 )
 
 // StopLossFromRange sets the stop loss just outside the range high/low with a buffer
-func StopLossFromRange(rangeLookback int, pipBuffer float64) OrderComputer {
-	rangeLow := values.RangeLow(rangeLookback)
-	rangeHigh := values.RangeHigh(rangeLookback)
+func StopLossFromRange(rangeLookback int, offset int, pipBuffer float64) OrderComputer {
+	rangeLow := values.RangeLow(rangeLookback, offset)
+	rangeHigh := values.RangeHigh(rangeLookback, offset)
 
 	return newOrderComputer(
 		func(ctx context.TraderContext, order *brokers.Order) error {
@@ -39,8 +39,8 @@ func StopLossFromRange(rangeLookback int, pipBuffer float64) OrderComputer {
 }
 
 // TakeProfitFromRange sets the take profit to price +/- size of range
-func TakeProfitFromRange(rangeLookback int) OrderComputer {
-	rangeSize := values.RangeSize(rangeLookback)
+func TakeProfitFromRange(rangeLookback int, offset int) OrderComputer {
+	rangeSize := values.RangeSize(rangeLookback, offset)
 
 	return newOrderComputer(
 		func(ctx context.TraderContext, order *brokers.Order) error {
