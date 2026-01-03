@@ -46,6 +46,7 @@ func main() {
 	}
 
 	const RangeDuration int = 10
+	const ConfirmationDuration int = 1
 
 	config := expression.Builder(
 		expression.HistorySize(250),
@@ -61,37 +62,35 @@ func main() {
 					// conditions.Session(conditions.SessionNewYork),
 
 					// Volatility expansion
-					/*
-						conditions.ValueAbove(
-							indicators.ATR(14),
-							indicators.Mean(indicators.ATR(14), 10),
-						),
-					*/
+					conditions.ValueAbove(
+						indicators.ATR(14),
+						indicators.Mean(indicators.ATR(14), 10),
+					),
 
 					// Range must be tight
 					conditions.ValueBelow(
-						values.RangeSize(RangeDuration),
-						indicators.ATR(14),
+						values.RangeSize(RangeDuration, ConfirmationDuration),
+						values.Factor(indicators.ATR(14), 1.2),
 					),
 				),
 			),
 			expression.LongTrigger(
 				conditions.PriceAbove(
-					values.RangeHigh(RangeDuration),
+					values.RangeHigh(RangeDuration, ConfirmationDuration),
 				),
 			),
 			expression.ShortTrigger(
 				conditions.PriceBelow(
-					values.RangeLow(RangeDuration),
+					values.RangeLow(RangeDuration, ConfirmationDuration),
 				),
 			),
 		),
 		expression.RiskManager(
 			expression.StopLoss(
-				ordercomputer.StopLossFromRange(RangeDuration, 1),
+				ordercomputer.StopLossFromRange(RangeDuration, ConfirmationDuration, 1),
 			),
 			expression.TakeProfit(
-				ordercomputer.TakeProfitFromRange(RangeDuration),
+				ordercomputer.TakeProfitRatio(1.5),
 			),
 		),
 		expression.CapitalAllocator(
