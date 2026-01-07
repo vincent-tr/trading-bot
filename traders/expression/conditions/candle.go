@@ -6,7 +6,7 @@ import (
 )
 
 func BullishCandle() Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			candle := ctx.HistoricalData().GetCandle(0)
 			return candle.Close > candle.Open
@@ -21,7 +21,7 @@ func BullishCandle() Condition {
 }
 
 func BearishCandle() Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			candle := ctx.HistoricalData().GetCandle(0)
 			return candle.Close < candle.Open

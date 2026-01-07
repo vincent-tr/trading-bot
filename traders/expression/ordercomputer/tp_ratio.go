@@ -8,7 +8,7 @@ import (
 )
 
 func TakeProfitRatio(ratio float64) OrderComputer {
-	return newOrderComputer(
+	return NewOrderComputer(
 		func(ctx context.TraderContext, order *brokers.Order) error {
 			if order.StopLoss == 0 {
 				return fmt.Errorf("stop loss must be set before calculating take profit")

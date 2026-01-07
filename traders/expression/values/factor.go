@@ -6,7 +6,7 @@ import (
 )
 
 func Factor(value Value, factor float64) Value {
-	return newValue(
+	return NewValue(
 		func(ctx context.TraderContext) float64 {
 			return value.Get(ctx) * factor
 		},

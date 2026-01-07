@@ -6,7 +6,7 @@ import (
 )
 
 func Mean(indicator Indicator, period int) Indicator {
-	return newIndicator(
+	return NewIndicator(
 		func(ctx context.TraderContext) []float64 {
 			values := indicator.Values(ctx).All()
 			if len(values) < period {

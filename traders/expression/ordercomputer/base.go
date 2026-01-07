@@ -16,7 +16,7 @@ type OrderComputer interface {
 	Compute(ctx context.TraderContext, order *brokers.Order) error
 }
 
-func newOrderComputer(
+func NewOrderComputer(
 	compute func(ctx context.TraderContext, order *brokers.Order) error,
 	format func() *formatter.FormatterNode,
 ) OrderComputer {

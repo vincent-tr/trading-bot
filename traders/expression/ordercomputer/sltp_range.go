@@ -12,7 +12,7 @@ func StopLossFromRange(rangeLookback int, pipBuffer float64, rangeOptions ...val
 	rangeLow := values.RangeLow(rangeLookback, rangeOptions...)
 	rangeHigh := values.RangeHigh(rangeLookback, rangeOptions...)
 
-	return newOrderComputer(
+	return NewOrderComputer(
 		func(ctx context.TraderContext, order *brokers.Order) error {
 			pipDistance := pipBuffer * pipSize
 
@@ -42,7 +42,7 @@ func StopLossFromRange(rangeLookback int, pipBuffer float64, rangeOptions ...val
 func TakeProfitFromRange(rangeLookback int, rangeOptions ...values.RangeOption) OrderComputer {
 	rangeSize := values.RangeSize(rangeLookback, rangeOptions...)
 
-	return newOrderComputer(
+	return NewOrderComputer(
 		func(ctx context.TraderContext, order *brokers.Order) error {
 			entryPrice := ctx.EntryPrice()
 			rangeDistance := rangeSize.Get(ctx)

@@ -8,7 +8,7 @@ import (
 )
 
 func ATR(period int) Indicator {
-	return newIndicator(
+	return NewIndicator(
 		func(ctx context.TraderContext) []float64 {
 			history := ctx.HistoricalData()
 			return talib.Atr(history.GetHighPrices().All(), history.GetLowPrices().All(), history.GetClosePrices().All(), period)

@@ -57,7 +57,7 @@ func Offset(offset int) RangeOption {
 // The offset parameter shifts the range window backward in time (offset=1 excludes only the last candle).
 // For example, RangeSize(20, 1) calculates the range from candles 1-20 bars ago (skipping the most recent completed candle).
 func RangeSize(period int, options ...RangeOption) Value {
-	return newValue(
+	return NewValue(
 		func(ctx context.TraderContext) float64 {
 			conf := makeRangeConfig(period, options)
 
@@ -81,7 +81,7 @@ func RangeSize(period int, options ...RangeOption) Value {
 // The offset parameter shifts the range window backward in time (offset=1 excludes only the last candle).
 // For example, RangeHigh(20, 1) finds the highest price from candles 1-20 bars ago.
 func RangeHigh(period int, options ...RangeOption) Value {
-	return newValue(
+	return NewValue(
 		func(ctx context.TraderContext) float64 {
 			conf := makeRangeConfig(period, options)
 			return getRangeHigh(ctx, conf)
@@ -102,7 +102,7 @@ func RangeHigh(period int, options ...RangeOption) Value {
 // The offset parameter shifts the range window backward in time (offset=1 excludes only the last candle).
 // For example, RangeLow(20, 1) finds the lowest price from candles 1-20 bars ago.
 func RangeLow(period int, options ...RangeOption) Value {
-	return newValue(
+	return NewValue(
 		func(ctx context.TraderContext) float64 {
 			conf := makeRangeConfig(period, options)
 			return getRangeLow(ctx, conf)

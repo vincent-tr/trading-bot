@@ -6,7 +6,7 @@ import (
 )
 
 func And(conditions ...Condition) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			for _, condition := range conditions {
 				if !condition.Execute(ctx) {
@@ -22,7 +22,7 @@ func And(conditions ...Condition) Condition {
 }
 
 func Or(conditions ...Condition) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			for _, condition := range conditions {
 				if condition.Execute(ctx) {
@@ -38,7 +38,7 @@ func Or(conditions ...Condition) Condition {
 }
 
 func Not(condition Condition) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			return !condition.Execute(ctx)
 		},

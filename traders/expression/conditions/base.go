@@ -13,7 +13,7 @@ type Condition interface {
 	Execute(ctx context.TraderContext) bool
 }
 
-func newCondition(
+func NewCondition(
 	execute func(ctx context.TraderContext) bool,
 	format func() *formatter.FormatterNode,
 ) Condition {

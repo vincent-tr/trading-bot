@@ -8,7 +8,7 @@ import (
 )
 
 func HistoryUsable() Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			return ctx.HistoricalData().IsUsable()
 		},
@@ -19,7 +19,7 @@ func HistoryUsable() Condition {
 }
 
 func NoOpenPositions() Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			return len(ctx.OpenPositions()) == 0
 		},
@@ -48,7 +48,7 @@ func Session(sessionType SessionType) Condition {
 		panic("unknown session type")
 	}
 
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			return session.IsOpen(ctx.Timestamp())
 		},
@@ -79,7 +79,7 @@ const (
 func ExcludeHolidays(typ Holidays) Condition {
 	switch typ {
 	case UKHolidays:
-		return newCondition(
+		return NewCondition(
 			func(ctx context.TraderContext) bool {
 				return !common.IsUKHoliday(ctx.Timestamp())
 			},
@@ -90,7 +90,7 @@ func ExcludeHolidays(typ Holidays) Condition {
 		)
 
 	case USHolidays:
-		return newCondition(
+		return NewCondition(
 			func(ctx context.TraderContext) bool {
 				return !common.IsUSHoliday(ctx.Timestamp())
 			},
@@ -106,7 +106,7 @@ func ExcludeHolidays(typ Holidays) Condition {
 }
 
 func Weekdays(weekdays ...time.Weekday) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			for _, day := range weekdays {
 				if ctx.Timestamp().Weekday() == day {
@@ -126,7 +126,7 @@ func Weekdays(weekdays ...time.Weekday) Condition {
 }
 
 func Hours(startHour, endHour int) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			hour := ctx.Timestamp().Hour()
 			return hour >= startHour && hour < endHour

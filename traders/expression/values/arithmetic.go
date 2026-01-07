@@ -6,7 +6,7 @@ import (
 )
 
 func Add(valueA, valueB Value) Value {
-	return newValue(
+	return NewValue(
 		func(ctx context.TraderContext) float64 {
 			return valueA.Get(ctx) + valueB.Get(ctx)
 		},
@@ -17,7 +17,7 @@ func Add(valueA, valueB Value) Value {
 }
 
 func Subtract(valueA, valueB Value) Value {
-	return newValue(
+	return NewValue(
 		func(ctx context.TraderContext) float64 {
 			return valueA.Get(ctx) - valueB.Get(ctx)
 		},

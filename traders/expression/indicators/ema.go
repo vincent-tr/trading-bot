@@ -8,7 +8,7 @@ import (
 )
 
 func EMA(period int) Indicator {
-	return newIndicator(
+	return NewIndicator(
 		func(ctx context.TraderContext) []float64 {
 			closePrices := ctx.HistoricalData().GetClosePrices().All()
 			return talib.Ema(closePrices, period)

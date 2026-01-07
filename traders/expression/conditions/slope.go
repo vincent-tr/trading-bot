@@ -7,7 +7,7 @@ import (
 )
 
 func SlopeUp(indicator indicators.Indicator, period int) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			values := indicator.Values(ctx)
 			if values.Len() < period+1 {
@@ -28,7 +28,7 @@ func SlopeUp(indicator indicators.Indicator, period int) Condition {
 }
 
 func SlopeDown(indicator indicators.Indicator, period int) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			values := indicator.Values(ctx)
 			if values.Len() < period+1 {

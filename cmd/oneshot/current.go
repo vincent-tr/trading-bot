@@ -69,6 +69,13 @@ func current() *expression.Configuration {
 							),
 						),
 					),
+					// displacement filter
+					conditions.PriceAbove(
+						values.Add(
+							values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
+							values.Factor(indicators.ATR(14), 0.20),
+						),
+					),
 				),
 			),
 			expression.ShortTrigger(
@@ -99,6 +106,13 @@ func current() *expression.Configuration {
 								values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
 								conditions.Offset(2),
 							),
+						),
+					),
+					// displacement filter
+					conditions.PriceBelow(
+						values.Subtract(
+							values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
+							values.Factor(indicators.ATR(14), 0.20),
 						),
 					),
 				),

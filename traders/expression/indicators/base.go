@@ -44,7 +44,7 @@ type indicator struct {
 	format  func() *formatter.FormatterNode
 }
 
-func newIndicator(
+func NewIndicator(
 	compute func(ctx context.TraderContext) []float64,
 	format func() *formatter.FormatterNode,
 ) Indicator {

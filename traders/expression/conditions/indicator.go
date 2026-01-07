@@ -119,7 +119,7 @@ var Close = PriceOption{
 
 // PriceAbove returns a condition that checks if the current price is above the given value.
 func PriceAbove(value values.Value, options ...PriceOption) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			conf := makePriceConfig(comparerAbove, value, options...)
 			return priceCompare(conf, ctx)
@@ -138,7 +138,7 @@ func PriceAbove(value values.Value, options ...PriceOption) Condition {
 
 // PriceBelow returns a condition that checks if the current price is below the given value.
 func PriceBelow(value values.Value, options ...PriceOption) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			conf := makePriceConfig(comparerBelow, value, options...)
 			return priceCompare(conf, ctx)
@@ -164,7 +164,7 @@ func priceCompare(conf *priceConfig, ctx context.TraderContext) bool {
 
 // ValueAbove returns a condition that checks if valueA is above valueB.
 func ValueAbove(valueA, valueB values.Value) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			valueA := valueA.Get(ctx)
 			valueB := valueB.Get(ctx)
@@ -184,7 +184,7 @@ func ValueAbove(valueA, valueB values.Value) Condition {
 
 // ValueBelow returns a condition that checks if valueA is below valueB.
 func ValueBelow(valueA, valueB values.Value) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			valueA := valueA.Get(ctx)
 			valueB := valueB.Get(ctx)

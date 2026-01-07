@@ -18,7 +18,7 @@ type value struct {
 	format func() *formatter.FormatterNode
 }
 
-func newValue(
+func NewValue(
 	get func(ctx context.TraderContext) float64,
 	format func() *formatter.FormatterNode,
 ) Value {
@@ -27,7 +27,6 @@ func newValue(
 		format: format,
 	}
 }
-
 func (v *value) Get(ctx context.TraderContext) float64 {
 	return v.get(ctx)
 }

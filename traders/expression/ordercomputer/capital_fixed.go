@@ -9,7 +9,7 @@ import (
 )
 
 func CapitalFixed(amount float64) OrderComputer {
-	return newOrderComputer(
+	return NewOrderComputer(
 		func(ctx context.TraderContext, order *brokers.Order) error {
 			broker := ctx.Broker()
 			accountBalance := broker.GetCapital()

@@ -7,7 +7,7 @@ import (
 )
 
 func StopLossPips(pips float64) OrderComputer {
-	return newOrderComputer(
+	return NewOrderComputer(
 		func(ctx context.TraderContext, order *brokers.Order) error {
 			entryPrice := ctx.EntryPrice()
 			pipDistance := pips * pipSize
@@ -32,7 +32,7 @@ func StopLossPips(pips float64) OrderComputer {
 }
 
 func TakeProfitPips(pips float64) OrderComputer {
-	return newOrderComputer(
+	return NewOrderComputer(
 		func(ctx context.TraderContext, order *brokers.Order) error {
 			entryPrice := ctx.EntryPrice()
 			pipDistance := pips * pipSize

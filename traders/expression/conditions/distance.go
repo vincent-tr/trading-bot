@@ -8,7 +8,7 @@ import (
 
 // DistanceIncreasing returns a condition that checks if the distance between the price and the indicator is increasing.
 func DistanceIncreasing(indicator indicators.Indicator) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			prices := ctx.HistoricalData().GetClosePrices()
 			values := indicator.Values(ctx)
@@ -32,7 +32,7 @@ func DistanceIncreasing(indicator indicators.Indicator) Condition {
 }
 
 func DistanceDecreasing(indicator indicators.Indicator) Condition {
-	return newCondition(
+	return NewCondition(
 		func(ctx context.TraderContext) bool {
 			prices := ctx.HistoricalData().GetClosePrices()
 			values := indicator.Values(ctx)
