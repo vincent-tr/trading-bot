@@ -8,6 +8,7 @@ import (
 )
 
 type priceConfig struct {
+	offset       int
 	candleGetter func(candle *brokers.Candle) float64
 	value        values.Value
 	comparer     func(price float64, indicatorValue float64) bool
@@ -39,6 +40,7 @@ func comparerBelow(price float64, indicatorValue float64) bool {
 
 func makePriceConfig(comparer func(price float64, indicatorValue float64) bool, value values.Value, options ...PriceOption) *priceConfig {
 	conf := &priceConfig{
+		offset:       0,
 		comparer:     comparer,
 		value:        value,
 		candleGetter: candleClose, // Default to close price
@@ -66,6 +68,17 @@ func formatPriceOptions(options []PriceOption) []*formatter.FormatterNode {
 type PriceOption struct {
 	apply  func(*priceConfig)
 	format func() *formatter.FormatterNode
+}
+
+func Offset(offset int) PriceOption {
+	return PriceOption{
+		apply: func(ctx *priceConfig) {
+			ctx.offset = offset
+		},
+		format: func() *formatter.FormatterNode {
+			return formatter.Function(Package, "Offset", formatter.IntValue(offset))
+		},
+	}
 }
 
 var Open = PriceOption{
@@ -143,7 +156,7 @@ func PriceBelow(value values.Value, options ...PriceOption) Condition {
 }
 
 func priceCompare(conf *priceConfig, ctx context.TraderContext) bool {
-	candle := ctx.HistoricalData().GetCandle(0)
+	candle := ctx.HistoricalData().GetCandle(conf.offset)
 	price := conf.candleGetter(&candle)
 	indicatorValue := conf.value.Get(ctx)
 	return conf.comparer(price, indicatorValue)
