@@ -60,7 +60,7 @@ func main() {
 
 	//spew.Dump(metrics)
 	printMetricsSummary(metrics)
-	
+
 	// If total trades < 50, show detailed trade information
 	allTrades, err := backtesting.GetAllTrades(broker)
 	if err != nil {
@@ -197,34 +197,61 @@ func printMetricsSummary(monthlyMetrics map[common.Month]*backtesting.Metrics) {
 
 func printTradeDetails(trades []*backtesting.Trade) {
 	fmt.Printf("\n📋 Individual Trade Details\n")
-	fmt.Printf("===========================\n")
+	fmt.Printf("===========================\n\n")
+
+	// Table header
+	fmt.Printf("┌─────┬───────┬──────────────────┬──────────────────┬──────────┬─────────┬─────────┬─────────┬─────────┬─────────┬────────┬────────┐\n")
+	fmt.Printf("│  #  │  Dir  │   Open Time      │   Close Time     │ Duration │  Open   │  Close  │   SL    │   TP    │   P&L   │   R    │ Result │\n")
+	fmt.Printf("├─────┼───────┼──────────────────┼──────────────────┼──────────┼─────────┼─────────┼─────────┼─────────┼─────────┼────────┼────────┤\n")
 
 	for i, trade := range trades {
-		var directionSymbol, resultSymbol, resultColor string
+		var direction string
 		if trade.Direction == brokers.PositionDirectionLong {
-			directionSymbol = "📈 LONG"
+			direction = "LONG"
 		} else {
-			directionSymbol = "📉 SHORT"
-		}
-
-		isWin := trade.PnL > 0
-		if isWin {
-			resultSymbol = "✅ WIN"
-			resultColor = "\033[32m" // Green
-		} else {
-			resultSymbol = "❌ LOSS"
-			resultColor = "\033[31m" // Red
+			direction = "SHORT"
 		}
 
 		duration := trade.CloseTime.Sub(trade.OpenTime)
+		durationStr := formatDuration(duration)
 
-		fmt.Printf("\n🔹 Trade #%d - %s\n", i+1, directionSymbol)
-		fmt.Printf("   Open:  %s @ %.5f\n", trade.OpenTime.Format("2006-01-02 15:04"), trade.OpenPrice)
-		fmt.Printf("   Close: %s @ %.5f\n", trade.CloseTime.Format("2006-01-02 15:04"), trade.ClosePrice)
-		fmt.Printf("   Duration: %s\n", duration.Round(time.Minute))
-		fmt.Printf("   SL: %.5f | TP: %.5f\n", trade.StopLoss, trade.TakeProfit)
-		fmt.Printf("   %s %sP&L: %.2f\033[0m (%.2fR)\n", resultSymbol, resultColor, trade.PnL, trade.RMultiple)
+		isWin := trade.PnL > 0
+		var resultStr, resultColor string
+		if isWin {
+			resultStr = "WIN"
+			resultColor = "\033[32m" // Green
+		} else {
+			resultStr = "LOSS"
+			resultColor = "\033[31m" // Red
+		}
+
+		// Format with color for P&L and result
+		fmt.Printf("│ %3d │ %-5s │ %s │ %s │ %8s │ %7.5f │ %7.5f │ %7.5f │ %7.5f │ %s%7.2f\033[0m │ %s%6.2f\033[0m │ %s%-7s\033[0m│\n",
+			i+1,
+			direction,
+			trade.OpenTime.Format("2006-01-02 15:04"),
+			trade.CloseTime.Format("2006-01-02 15:04"),
+			durationStr,
+			trade.OpenPrice,
+			trade.ClosePrice,
+			trade.StopLoss,
+			trade.TakeProfit,
+			resultColor, trade.PnL,
+			resultColor, trade.RMultiple,
+			resultColor, resultStr,
+		)
 	}
 
+	fmt.Printf("└─────┴───────┴──────────────────┴──────────────────┴──────────┴─────────┴─────────┴─────────┴─────────┴─────────┴────────┴────────┘\n")
 	fmt.Printf("\n")
+}
+
+func formatDuration(d time.Duration) string {
+	hours := int(d.Hours())
+	minutes := int(d.Minutes()) % 60
+
+	if hours > 0 {
+		return fmt.Sprintf("%dh%02dm", hours, minutes)
+	}
+	return fmt.Sprintf("%dm", minutes)
 }
