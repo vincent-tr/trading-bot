@@ -66,10 +66,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	if len(allTrades) < 50 {
 		printTradeDetails(allTrades)
 	}
 }
+
 func printMetricsSummary(monthlyMetrics map[common.Month]*backtesting.Metrics) {
 	fmt.Printf("\n📊 Trading Summary\n")
 	fmt.Printf("==================\n")
