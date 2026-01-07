@@ -6,11 +6,6 @@ import (
 	"trading-bot/brokers/backtesting"
 	"trading-bot/common"
 	"trading-bot/traders"
-	"trading-bot/traders/expression"
-	"trading-bot/traders/expression/conditions"
-	"trading-bot/traders/expression/indicators"
-	"trading-bot/traders/expression/ordercomputer"
-	"trading-bot/traders/expression/values"
 )
 
 func main() {
@@ -45,100 +40,8 @@ func main() {
 		panic(err)
 	}
 
-	const RangeDuration int = 10
-	const ConfirmationDuration int = 1
-
-	config := expression.Builder(
-		expression.HistorySize(250),
-		expression.Strategy(
-			expression.Filter(
-				conditions.And(
-					conditions.HistoryUsable(),
-					conditions.NoOpenPositions(),
-					// conditions.Weekday(time.Tuesday, time.Wednesday, time.Thursday),
-					// conditions.ExcludeUKHolidays(),
-					// conditions.ExcludeUSHolidays(),
-					// conditions.Session(conditions.SessionLondon),
-					// conditions.Session(conditions.SessionNewYork),
-
-					// Volatility expansion
-					conditions.ValueAbove(
-						indicators.ATR(14),
-						indicators.Mean(indicators.ATR(14), 10),
-					),
-
-					// Range must be tight
-					conditions.ValueBelow(
-						values.RangeSize(RangeDuration, values.Offset(ConfirmationDuration)),
-						values.Factor(indicators.ATR(14), 1.2),
-					),
-				),
-			),
-			expression.LongTrigger(
-				conditions.Or(
-
-					// Case A: clean breakout
-					conditions.PriceAbove(
-						values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
-					),
-
-					// Case B: partial breakout acceptance
-					conditions.And(
-						conditions.PriceAbove(
-							values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
-							conditions.High,
-						),
-						conditions.PriceAbove(
-							values.Subtract(
-								values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
-								values.Factor(
-									indicators.ATR(14),
-									0.15,
-								),
-							),
-						),
-					),
-				),
-			),
-			expression.ShortTrigger(
-				conditions.Or(
-
-					// Case A: clean breakdown
-					conditions.PriceBelow(
-						values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
-					),
-
-					// Case B: partial breakdown acceptance
-					conditions.And(
-						conditions.PriceBelow(
-							values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
-							conditions.Low,
-						),
-						conditions.PriceBelow(
-							values.Add(
-								values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
-								values.Factor(
-									indicators.ATR(14),
-									0.15,
-								),
-							),
-						),
-					),
-				),
-			),
-		),
-		expression.RiskManager(
-			expression.StopLoss(
-				ordercomputer.StopLossFromRange(RangeDuration, 1, values.Offset(ConfirmationDuration)),
-			),
-			expression.TakeProfit(
-				ordercomputer.TakeProfitRatio(1.5),
-			),
-		),
-		expression.CapitalAllocator(
-			ordercomputer.CapitalFixed(10),
-		),
-	)
+	config := current()
+	// config := back1()
 
 	fmt.Printf("Strategy:\n%s\n", config.Format().Detailed())
 
