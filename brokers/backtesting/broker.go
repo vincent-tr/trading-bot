@@ -53,6 +53,20 @@ type Metrics struct {
 	ShortTrades int
 }
 
+// Trade represents a completed trade with all its details
+type Trade struct {
+	Direction  brokers.PositionDirection // Direction of the trade (Long or Short)
+	OpenTime   time.Time                 // Time when the trade was opened
+	CloseTime  time.Time                 // Time when the trade was closed
+	OpenPrice  float64                   // Price at which the trade was opened
+	ClosePrice float64                   // Price at which the trade was closed
+	StopLoss   float64                   // Stop loss price level
+	TakeProfit float64                   // Take profit price level
+	Quantity   int                       // Number of lots/units traded
+	PnL        float64                   // Profit and Loss in account currency
+	RMultiple  float64                   // Risk-adjusted return (PnL / initial risk)
+}
+
 type broker struct {
 	config           *Config
 	ticks            []tick
@@ -156,6 +170,43 @@ func ComputeMetrics(b brokers.BacktestingBroker) (map[common.Month]*Metrics, err
 
 	metrics := bb.computeMetrics()
 	return metrics, nil
+}
+
+// GetAllTrades returns all completed trades
+func GetAllTrades(b brokers.BacktestingBroker) ([]*Trade, error) {
+	bb, ok := b.(*broker)
+	if !ok {
+		return nil, fmt.Errorf("invalid broker type: expected *broker, got %T", b)
+	}
+
+	trades := make([]*Trade, 0, len(bb.positionsHistory))
+	for _, pos := range bb.positionsHistory {
+		if !pos.closed {
+			continue
+		}
+
+		pnl := pos.getProfitAndLoss()
+		risk := math.Abs(pos.openPrice - pos.stopLoss)
+		var rMultiple float64
+		if risk > 0 {
+			rMultiple = pnl / (risk * float64(pos.quantity))
+		}
+
+		trades = append(trades, &Trade{
+			Direction:  pos.direction,
+			OpenTime:   pos.openTime,
+			CloseTime:  pos.closeTime,
+			OpenPrice:  pos.openPrice,
+			ClosePrice: pos.closePrice,
+			StopLoss:   pos.stopLoss,
+			TakeProfit: pos.takeProfit,
+			Quantity:   pos.quantity,
+			PnL:        pnl,
+			RMultiple:  rMultiple,
+		})
+	}
+
+	return trades, nil
 }
 
 func (b *broker) currentTick() *tick {

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"time"
+	"trading-bot/brokers"
 	"trading-bot/brokers/backtesting"
 	"trading-bot/common"
 	"trading-bot/traders"
@@ -59,6 +60,15 @@ func main() {
 
 	//spew.Dump(metrics)
 	printMetricsSummary(metrics)
+	
+	// If total trades < 50, show detailed trade information
+	allTrades, err := backtesting.GetAllTrades(broker)
+	if err != nil {
+		panic(err)
+	}
+	if len(allTrades) < 50 {
+		printTradeDetails(allTrades)
+	}
 }
 func printMetricsSummary(monthlyMetrics map[common.Month]*backtesting.Metrics) {
 	fmt.Printf("\n📊 Trading Summary\n")
@@ -180,6 +190,40 @@ func printMetricsSummary(monthlyMetrics map[common.Month]*backtesting.Metrics) {
 			fmt.Printf("📆 %s: %s%.2f\033[0m (Trades: %d, Win Rate: %.1f%%)\n",
 				month.String(), monthColor, metrics.NetPnL, metrics.TotalTrades, metrics.WinRate)
 		}
+	}
+
+	fmt.Printf("\n")
+}
+
+func printTradeDetails(trades []*backtesting.Trade) {
+	fmt.Printf("\n📋 Individual Trade Details\n")
+	fmt.Printf("===========================\n")
+
+	for i, trade := range trades {
+		var directionSymbol, resultSymbol, resultColor string
+		if trade.Direction == brokers.PositionDirectionLong {
+			directionSymbol = "📈 LONG"
+		} else {
+			directionSymbol = "📉 SHORT"
+		}
+
+		isWin := trade.PnL > 0
+		if isWin {
+			resultSymbol = "✅ WIN"
+			resultColor = "\033[32m" // Green
+		} else {
+			resultSymbol = "❌ LOSS"
+			resultColor = "\033[31m" // Red
+		}
+
+		duration := trade.CloseTime.Sub(trade.OpenTime)
+
+		fmt.Printf("\n🔹 Trade #%d - %s\n", i+1, directionSymbol)
+		fmt.Printf("   Open:  %s @ %.5f\n", trade.OpenTime.Format("2006-01-02 15:04"), trade.OpenPrice)
+		fmt.Printf("   Close: %s @ %.5f\n", trade.CloseTime.Format("2006-01-02 15:04"), trade.ClosePrice)
+		fmt.Printf("   Duration: %s\n", duration.Round(time.Minute))
+		fmt.Printf("   SL: %.5f | TP: %.5f\n", trade.StopLoss, trade.TakeProfit)
+		fmt.Printf("   %s %sP&L: %.2f\033[0m (%.2fR)\n", resultSymbol, resultColor, trade.PnL, trade.RMultiple)
 	}
 
 	fmt.Printf("\n")
