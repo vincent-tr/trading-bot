@@ -71,11 +71,11 @@ func newTrader(broker brokers.Broker, config *Configuration) (*trader, error) {
 		history:          tools.NewHistory(config.historySize),
 		openPositions:    make(map[brokers.Position]struct{}),
 		indicatorCache:   indicators.NewCache(),
-		filter:           config.filter,
-		longTrigger:      config.longTrigger,
-		shortTrigger:     config.shortTrigger,
-		stopLoss:         config.stopLoss,
-		takeProfit:       config.takeProfit,
+		filter:           config.filter.value,
+		longTrigger:      config.longTrigger.value,
+		shortTrigger:     config.shortTrigger.value,
+		stopLoss:         config.stopLoss.value,
+		takeProfit:       config.takeProfit.value,
 		capitalAllocator: config.capitalAllocator,
 	}, nil
 }

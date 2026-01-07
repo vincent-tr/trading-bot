@@ -57,9 +57,9 @@ func HistorySize(size int) *historySizeConfiguration {
 }
 
 type strategyConfiguration struct {
-	filter       conditions.Condition
-	longTrigger  conditions.Condition
-	shortTrigger conditions.Condition
+	filter       *strategyFilterConfiguration
+	longTrigger  *strategyLongTriggerConfiguration
+	shortTrigger *strategyShortTriggerConfiguration
 }
 
 func (config *strategyConfiguration) Format() *formatter.FormatterNode {
@@ -74,9 +74,9 @@ func (config *strategyConfiguration) Format() *formatter.FormatterNode {
 
 func Strategy(filter *strategyFilterConfiguration, longTrigger *strategyLongTriggerConfiguration, shortTrigger *strategyShortTriggerConfiguration) *strategyConfiguration {
 	return &strategyConfiguration{
-		filter:       filter.value,
-		longTrigger:  longTrigger.value,
-		shortTrigger: shortTrigger.value,
+		filter,
+		longTrigger,
+		shortTrigger,
 	}
 }
 
@@ -129,8 +129,8 @@ func ShortTrigger(value conditions.Condition) *strategyShortTriggerConfiguration
 }
 
 type riskManagerConfiguration struct {
-	stopLoss   ordercomputer.OrderComputer
-	takeProfit ordercomputer.OrderComputer
+	stopLoss   *riskManagerStopLossConfiguration
+	takeProfit *riskManagerTakeProfitConfiguration
 }
 
 func (config *riskManagerConfiguration) Format() *formatter.FormatterNode {
@@ -144,8 +144,8 @@ func (config *riskManagerConfiguration) Format() *formatter.FormatterNode {
 
 func RiskManager(stopLoss *riskManagerStopLossConfiguration, takeProfit *riskManagerTakeProfitConfiguration) *riskManagerConfiguration {
 	return &riskManagerConfiguration{
-		stopLoss:   stopLoss.value,
-		takeProfit: takeProfit.value,
+		stopLoss,
+		takeProfit,
 	}
 }
 
