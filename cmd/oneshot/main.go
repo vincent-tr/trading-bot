@@ -6,6 +6,7 @@ import (
 	"trading-bot/brokers"
 	"trading-bot/brokers/backtesting"
 	"trading-bot/common"
+	"trading-bot/strategies/expression/rangebreakout"
 	"trading-bot/traders"
 )
 
@@ -41,8 +42,8 @@ func main() {
 		panic(err)
 	}
 
-	config := current()
-	// config := back1()
+	config := rangebreakout.Current()
+	// config := rangebreakout.Back1()
 
 	fmt.Printf("Strategy:\n%s\n", config.Format().Detailed())
 

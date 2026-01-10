@@ -1,4 +1,4 @@
-package main
+package rangebreakout
 
 import (
 	"trading-bot/traders/expression"
@@ -8,7 +8,7 @@ import (
 	"trading-bot/traders/expression/values"
 )
 
-func back1() *expression.Configuration {
+func Back1() *expression.Configuration {
 
 	const RangeDuration int = 10
 
