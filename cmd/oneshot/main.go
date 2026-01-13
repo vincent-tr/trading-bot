@@ -6,8 +6,9 @@ import (
 	"trading-bot/brokers"
 	"trading-bot/brokers/backtesting"
 	"trading-bot/common"
-	"trading-bot/strategies/expression/rangebreakout"
+	"trading-bot/strategies/expression/multiple"
 	"trading-bot/traders"
+	"trading-bot/traders/expression"
 )
 
 func main() {
@@ -22,54 +23,62 @@ func main() {
 		panic(err)
 	}
 
-	brokerConfig := &backtesting.Config{
-		// For backtesting, we assume a lot size of 1 for simplicity.
-		// In a real broker, this would be the number of units per lot.
-		// Not that using IG broker, EUR/USD Mini has also a size of 1.
-		LotSize: 1,
-
-		// Leverage is the ratio of the amount of capital that a trader must put up to open a position.
-		// For example, if the leverage is 30, it means that for every 1 unit of capital,
-		// the trader can control 30 units of the asset.
-		// This is a common leverage ratio in forex trading.
-		Leverage: 30.0,
-
-		InitialCapital: 100000,
-	}
-
-	broker, err := backtesting.NewBroker(brokerConfig, dataset)
-	if err != nil {
-		panic(err)
-	}
-
-	config := rangebreakout.Current()
+	// config := rangebreakout.Current()
 	// config := rangebreakout.Back1()
-
-	fmt.Printf("Strategy:\n%s\n", config.Format().Detailed())
-
-	if err := traders.SetupExpressionTrader(broker, config); err != nil {
-		panic(err)
+	// config := meanreversion.Current()
+	configs := []*expression.Configuration{
+		multiple.Strategy1(),
+		multiple.Strategy2(),
+		multiple.Strategy3(),
 	}
-	if err := broker.Run(); err != nil {
-		panic(err)
-	}
+	for _, config := range configs {
 
-	metrics, err := backtesting.ComputeMetrics(broker)
-	if err != nil {
-		panic(err)
-	}
+		fmt.Printf("Strategy:\n%s\n", config.Format().Detailed())
 
-	//spew.Dump(metrics)
-	printMetricsSummary(metrics)
+		brokerConfig := &backtesting.Config{
+			// For backtesting, we assume a lot size of 1 for simplicity.
+			// In a real broker, this would be the number of units per lot.
+			// Not that using IG broker, EUR/USD Mini has also a size of 1.
+			LotSize: 1,
 
-	// If total trades < 50, show detailed trade information
-	allTrades, err := backtesting.GetAllTrades(broker)
-	if err != nil {
-		panic(err)
-	}
+			// Leverage is the ratio of the amount of capital that a trader must put up to open a position.
+			// For example, if the leverage is 30, it means that for every 1 unit of capital,
+			// the trader can control 30 units of the asset.
+			// This is a common leverage ratio in forex trading.
+			Leverage: 30.0,
 
-	if len(allTrades) < 50 {
-		printTradeDetails(allTrades)
+			InitialCapital: 100000,
+		}
+
+		broker, err := backtesting.NewBroker(brokerConfig, dataset)
+		if err != nil {
+			panic(err)
+		}
+
+		if err := traders.SetupExpressionTrader(broker, config); err != nil {
+			panic(err)
+		}
+		if err := broker.Run(); err != nil {
+			panic(err)
+		}
+
+		metrics, err := backtesting.ComputeMetrics(broker)
+		if err != nil {
+			panic(err)
+		}
+
+		//spew.Dump(metrics)
+		printMetricsSummary(metrics)
+
+		// If total trades < 50, show detailed trade information
+		allTrades, err := backtesting.GetAllTrades(broker)
+		if err != nil {
+			panic(err)
+		}
+
+		if len(allTrades) < 50 {
+			printTradeDetails(allTrades)
+		}
 	}
 }
 
