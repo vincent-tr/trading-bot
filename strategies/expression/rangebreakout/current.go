@@ -40,81 +40,17 @@ func Current() *expression.Configuration {
 				),
 			),
 			expression.LongTrigger(
-				conditions.And(
-					conditions.Or(
-						conditions.PriceAbove(
-							values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
-						),
-						conditions.PriceAbove(
-							values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
-							conditions.Offset(1),
-						),
-						conditions.PriceAbove(
-							values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
-							conditions.Offset(2),
-						),
-					),
-					conditions.Not(
-						conditions.Or(
-							conditions.PriceBelow(
-								values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
-							),
-							conditions.PriceBelow(
-								values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
-								conditions.Offset(1),
-							),
-							conditions.PriceBelow(
-								values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
-								conditions.Offset(2),
-							),
-						),
-					),
-					// displacement filter
-					conditions.PriceAbove(
-						values.Add(
-							values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
-							values.Factor(indicators.ATR(14), 0.20),
-						),
-					),
+				// Breakout acceptance
+				conditions.ValueAbove(
+					indicators.Min(indicators.Close(), ConfirmationDuration),
+					values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
 				),
 			),
 			expression.ShortTrigger(
-				conditions.And(
-					conditions.Or(
-						conditions.PriceBelow(
-							values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
-						),
-						conditions.PriceBelow(
-							values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
-							conditions.Offset(1),
-						),
-						conditions.PriceBelow(
-							values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
-							conditions.Offset(2),
-						),
-					),
-					conditions.Not(
-						conditions.Or(
-							conditions.PriceAbove(
-								values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
-							),
-							conditions.PriceAbove(
-								values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
-								conditions.Offset(1),
-							),
-							conditions.PriceAbove(
-								values.RangeHigh(RangeDuration, values.Offset(ConfirmationDuration)),
-								conditions.Offset(2),
-							),
-						),
-					),
-					// displacement filter
-					conditions.PriceBelow(
-						values.Subtract(
-							values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
-							values.Factor(indicators.ATR(14), 0.20),
-						),
-					),
+				// Breakout acceptance
+				conditions.ValueBelow(
+					indicators.Max(indicators.Close(), ConfirmationDuration),
+					values.RangeLow(RangeDuration, values.Offset(ConfirmationDuration)),
 				),
 			),
 		),
