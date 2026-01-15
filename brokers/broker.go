@@ -8,6 +8,8 @@ const (
 	Timeframe1Minute   Timeframe = Timeframe(1 * time.Minute)
 	Timeframe5Minutes  Timeframe = Timeframe(5 * time.Minute)
 	Timeframe15Minutes Timeframe = Timeframe(15 * time.Minute)
+	Timeframe1Hour     Timeframe = Timeframe(1 * time.Hour)
+	Timeframe4Hour     Timeframe = Timeframe(4 * time.Hour)
 )
 
 func (t Timeframe) Format() string {
@@ -18,6 +20,10 @@ func (t Timeframe) Format() string {
 		return "Timeframe5Minutes"
 	case Timeframe15Minutes:
 		return "Timeframe15Minutes"
+	case Timeframe1Hour:
+		return "Timeframe1Hour"
+	case Timeframe4Hour:
+		return "Timeframe4Hour"
 	default:
 		panic("unknown timeframe")
 	}
