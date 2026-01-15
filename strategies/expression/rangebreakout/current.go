@@ -37,6 +37,12 @@ func Current() *expression.Configuration {
 						values.RangeSize(RangeDuration, values.Offset(ConfirmationDuration)),
 						values.Factor(indicators.ATR(14), 1.2),
 					),
+
+					// Regime gate: must be directional
+					// conditions.ValueAbove(
+					// 	values.Efficiency(30),
+					// 	values.Constant(0.40),
+					// ),
 				),
 			),
 			expression.LongTrigger(
