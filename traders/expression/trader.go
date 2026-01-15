@@ -25,7 +25,7 @@ func Setup(broker brokers.Broker, config *Configuration) error {
 
 	log.Debug("%s", config.Format().Detailed())
 
-	broker.RegisterMarketDataCallback(brokers.Timeframe1Minute, func(candle brokers.Candle) {
+	broker.RegisterMarketDataCallback(config.timeframe, func(candle brokers.Candle) {
 		trader.tick(candle)
 	})
 

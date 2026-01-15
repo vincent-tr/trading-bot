@@ -119,7 +119,7 @@ func (b *broker) GetCurrentTime() time.Time {
 	return b.currentTick().Timestamp
 }
 
-// GetMarketDataChannel implements brokers.Broker.
+// RegisterMarketDataCallback implements brokers.Broker.
 func (b *broker) RegisterMarketDataCallback(timeframe brokers.Timeframe, callback func(candle brokers.Candle)) {
 	b.callbacks[timeframe] = append(b.callbacks[timeframe], callback)
 }
