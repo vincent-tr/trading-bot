@@ -1,6 +1,7 @@
 package rangebreakout
 
 import (
+	"trading-bot/brokers"
 	"trading-bot/traders/expression"
 	"trading-bot/traders/expression/conditions"
 	"trading-bot/traders/expression/indicators"
@@ -14,6 +15,7 @@ func Back1() *expression.Configuration {
 
 	return expression.Builder(
 		expression.HistorySize(250),
+		expression.Timeframe(brokers.Timeframe1Minute),
 		expression.Strategy(
 			expression.Filter(
 				conditions.And(

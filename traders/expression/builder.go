@@ -1,6 +1,7 @@
 package expression
 
 import (
+	"trading-bot/brokers"
 	"trading-bot/traders/expression/conditions"
 	"trading-bot/traders/expression/formatter"
 	"trading-bot/traders/expression/ordercomputer"
@@ -10,6 +11,7 @@ const Package string = "expression"
 
 type Configuration struct {
 	historySizeConfiguration
+	timeframeConfiguration
 	strategyConfiguration
 	riskManagerConfiguration
 	capitalAllocatorConfiguration
@@ -20,6 +22,7 @@ func (config *Configuration) Format() *formatter.FormatterNode {
 		Package,
 		"Builder",
 		config.historySizeConfiguration.Format(),
+		config.timeframeConfiguration.Format(),
 		config.strategyConfiguration.Format(),
 		config.riskManagerConfiguration.Format(),
 		config.capitalAllocatorConfiguration.Format(),
@@ -28,12 +31,14 @@ func (config *Configuration) Format() *formatter.FormatterNode {
 
 func Builder(
 	historySize *historySizeConfiguration,
+	timeframe *timeframeConfiguration,
 	strategy *strategyConfiguration,
 	riskManager *riskManagerConfiguration,
 	capitalAllocator *capitalAllocatorConfiguration,
 ) *Configuration {
 	return &Configuration{
 		historySizeConfiguration:      *historySize,
+		timeframeConfiguration:        *timeframe,
 		strategyConfiguration:         *strategy,
 		riskManagerConfiguration:      *riskManager,
 		capitalAllocatorConfiguration: *capitalAllocator,
@@ -54,6 +59,22 @@ func (config *historySizeConfiguration) Format() *formatter.FormatterNode {
 
 func HistorySize(size int) *historySizeConfiguration {
 	return &historySizeConfiguration{historySize: size}
+}
+
+type timeframeConfiguration struct {
+	timeframe brokers.Timeframe
+}
+
+func (config *timeframeConfiguration) Format() *formatter.FormatterNode {
+	return formatter.Function(
+		Package,
+		"Timeframe",
+		formatter.Value("brokers", config.timeframe.Format()),
+	)
+}
+
+func Timeframe(timeframe brokers.Timeframe) *timeframeConfiguration {
+	return &timeframeConfiguration{timeframe}
 }
 
 type strategyConfiguration struct {

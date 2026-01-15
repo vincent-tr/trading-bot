@@ -10,6 +10,19 @@ const (
 	Timeframe15Minutes Timeframe = Timeframe(15 * time.Minute)
 )
 
+func (t Timeframe) Format() string {
+	switch t {
+	case Timeframe1Minute:
+		return "Timeframe1Minute"
+	case Timeframe5Minutes:
+		return "Timeframe5Minutes"
+	case Timeframe15Minutes:
+		return "Timeframe15Minutes"
+	default:
+		panic("unknown timeframe")
+	}
+}
+
 type Candle struct {
 	Open   float64
 	Close  float64
