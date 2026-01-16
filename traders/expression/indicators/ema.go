@@ -57,7 +57,7 @@ func EMA(period int, options ...EmaOption) Indicator {
 			config := makeEmaConfig(period, options)
 
 			closePrices := ctx.HistoricalData().GetClosePrices().All()
-			closePrices = aggregatePrices(closePrices, config.candleAggregtionFactor)
+			closePrices = aggregateClosePrices(closePrices, config.candleAggregtionFactor)
 			return talib.Ema(closePrices, period)
 		},
 		func() *formatter.FormatterNode {
@@ -66,22 +66,14 @@ func EMA(period int, options ...EmaOption) Indicator {
 	)
 }
 
-func aggregatePrices(prices []float64, factor int) []float64 {
+func aggregateClosePrices(prices []float64, factor int) []float64 {
 	if factor <= 1 {
 		return prices
 	}
 
 	aggregated := make([]float64, 0, len(prices)/factor)
 	for i := 0; i < len(prices); i += factor {
-		end := i + factor
-		if end > len(prices) {
-			end = len(prices)
-		}
-		sum := 0.0
-		for j := i; j < end; j++ {
-			sum += prices[j]
-		}
-		aggregated = append(aggregated, sum/float64(end-i))
+		aggregated = append(aggregated, prices[i])
 	}
 	return aggregated
 }
