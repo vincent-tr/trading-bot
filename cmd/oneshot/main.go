@@ -6,7 +6,7 @@ import (
 	"trading-bot/brokers"
 	"trading-bot/brokers/backtesting"
 	"trading-bot/common"
-	"trading-bot/strategies/expression/intraday"
+	"trading-bot/strategies/expression/rangebreakout"
 	"trading-bot/traders"
 )
 
@@ -22,8 +22,9 @@ func main() {
 		panic(err)
 	}
 
-	config := intraday.Current()
-	// config := rangebreakout.Current()
+	// config := trendfollow.Current()
+	// config := intraday.Current()
+	config := rangebreakout.Current()
 	// config := rangebreakout.Back1()
 	// config := meanreversion.Current()
 	/*
