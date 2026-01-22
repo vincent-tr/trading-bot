@@ -1,4 +1,4 @@
-.PHONY: convert download-dukascopy oneshot
+.PHONY: convert download-dukascopy oneshot viz
 
 # Run the data converter
 convert:
@@ -14,3 +14,9 @@ download-dukascopy:
 oneshot:
 	@echo "🚀 Running oneshot..."
 	go run ./cmd/oneshot
+
+
+# Run viz command
+viz:
+	@echo "🚀 Running viz..."
+	go run ./cmd/viz
